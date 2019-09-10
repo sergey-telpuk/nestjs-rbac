@@ -21,30 +21,46 @@ describe('RBAC service', () => {
     ).compile();
 
     app = moduleFixture.createNestApplication();
-    rbacService = moduleFixture.get(RbacService);
+    rbacService = moduleFixture.get<RbacService>(RbacService);
 
     await app.init();
   });
 
-  it('Should return true because admin has permissions for permission1@create',
+  describe('Permission', () => {
+
+    it('Should return true because admin has permissions for permission1@create',
     () => {
       const res = rbacService.getRole('admin').can('permission1@create');
       expect(res).toBe(true);
     });
 
-  it('Should return true because admin extends user',
-    () => {
-      const res = rbacService.getRole('admin').can('permission2@update');
-      expect(res).toBe(true);
-    });
-
-  it('Should return false because user hasn\'t permissions for permission2@update',
+    it('Should return false because user hasn\'t permissions for permission1@update',
     () => {
       const res = rbacService.getRole('user').can('permission1@update');
       expect(res).toBe(false);
     });
 
-  it('Should return true because admin has the custom filter permission3@filter1',
+    it('Should return true because user has permissions for permission1@create',
+    () => {
+      const res = rbacService.getRole('user').can('permission1@create');
+      expect(res).toBe(true);
+    });
+
+  })
+
+  describe('Extends', () => {
+
+    it('Should return true because admin extends user',
+    () => {
+      const res = rbacService.getRole('admin').can('permission2@update');
+      expect(res).toBe(true);
+    });
+
+  })
+
+  describe('Filters', () => {
+
+    it('Should return true because admin has the custom filter permission3@filter1',
     () => {
       const filter = new ParamsFilter();
       filter.setParams('filter1', true);
@@ -81,6 +97,8 @@ describe('RBAC service', () => {
 
       expect(res).toBe(false);
     });
+
+  })
 
   afterAll(async () => {
     await app.close();
