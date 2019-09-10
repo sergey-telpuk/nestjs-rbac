@@ -21,7 +21,8 @@
     "@nestjs/common": "^6.0.0",
     "@nestjs/core": "^6.0.0",
     "reflect-metadata": "^0.1.12",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "rxjs": "^6.5.3"
   },
   "devDependencies": {
     "@nestjs/testing": "^6.0.0",
