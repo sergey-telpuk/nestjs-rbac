@@ -20,6 +20,8 @@
     "test:int": "jest  --verbose --config ./test/int/jest-int.json",
     "test": "jest --verbose --config ./test/jest.json"
   },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "dependencies": {
     "@nestjs/common": "^6.0.0",
     "@nestjs/core": "^6.0.0",
