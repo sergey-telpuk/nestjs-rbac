@@ -1,0 +1,34 @@
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+    constructor(
+        private readonly reflector: Reflector,
+    ) {
+
+    }
+
+    async canActivate(
+        context: ExecutionContext,
+    ): Promise<boolean> {
+        const request = context.switchToHttp().getRequest();
+        const role = request.headers.role;
+
+        if (role === 'admin') {
+            request.user = {
+                role: 'admin',
+            };
+            return true;
+        }
+
+        if (role === 'user'){
+            request.user = {
+                role: 'user',
+            };
+            return true;
+        }
+
+        return false;
+    }
+}
