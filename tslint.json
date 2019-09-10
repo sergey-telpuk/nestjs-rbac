@@ -1,23 +1,65 @@
 {
   "defaultSeverity": "error",
-  "extends": ["tslint:recommended"],
+  "extends": [
+    "tslint:recommended"
+  ],
   "jsRules": {},
   "rules": {
-    "quotemark": [true, "single", "avoid-escape"],
-    "no-console": [true, "log"],
+    "quotemark": [
+      true,
+      "single",
+      "avoid-escape"
+    ],
+    "no-console": [
+      true,
+      "log"
+    ],
     "arrow-parens": false,
-    "no-consecutive-blank-lines": [true, 2],
-    "member-access": [false],
-    "ordered-imports": [false],
-    "object-literal-sort-keys": [false],
-    "trailing-comma": [false],
-    "semicolon": [true, "always", "ignore-bound-class-methods"],
-    "max-line-length": [false],
-    "one-line": [true, "check-catch", "check-finally", "check-else", "check-open-brace"],
-    "whitespace": [true, "check-decl", "check-operator", "check-module", "check-type", "check-typecast"],
+    "no-consecutive-blank-lines": [
+      true,
+      2
+    ],
+    "member-access": [
+      false
+    ],
+    "ordered-imports": [
+      false
+    ],
+    "object-literal-sort-keys": [
+      false
+    ],
+    "trailing-comma": [
+      false
+    ],
+    "semicolon": [
+      true,
+      "always",
+      "ignore-bound-class-methods"
+    ],
+    "max-line-length": [
+      false
+    ],
+    "one-line": [
+      true,
+      "check-catch",
+      "check-finally",
+      "check-else",
+      "check-open-brace"
+    ],
+    "whitespace": [
+      true,
+      "check-decl",
+      "check-operator",
+      "check-module",
+      "check-type",
+      "check-typecast"
+    ],
     "interface-name": false,
     "member-ordering": false,
-    "object-literal-key-quotes": [true, "as-needed"]
+    "object-literal-key-quotes": [
+      true,
+      "as-needed"
+    ]
   },
   "linterOptions": {
     "exclude": [

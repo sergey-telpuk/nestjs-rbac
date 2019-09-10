@@ -2,8 +2,8 @@ import { IFilterPermission } from '../../permissions/interfaces/filter.permissio
 
 export interface IStorageRbac {
 
-    roles: string[];
-    permissions: object;
-    grants: object;
-    filters: { [key: string]: any | IFilterPermission };
+  roles: string[];
+  permissions: object;
+  grants: object;
+  filters: { [key: string]: any | IFilterPermission };
 }

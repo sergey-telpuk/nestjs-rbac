@@ -1,4 +1,3 @@
-
 export interface IRole {
-    role: string;
+  role: string;
 }

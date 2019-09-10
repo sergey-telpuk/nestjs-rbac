@@ -1,9 +1,9 @@
 import { IFilterPermission } from '../../../src/permissions/interfaces/filter.permission.interface';
 
-export class RequestFilter implements IFilterPermission{
+export class RequestFilter implements IFilterPermission {
 
-    can(params?: any[]): boolean {
-        return params[0].headers['test-header'] === 'test';
-    }
+  can(params?: any[]): boolean {
+    return params[0].headers['test-header'] === 'test';
+  }
 
 }

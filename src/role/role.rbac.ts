@@ -6,65 +6,65 @@ import { IParamsFilter } from '../params-filter/interfaces/params.filter.interfa
 @Injectable()
 export class RoleRbac implements IRoleRbac {
 
-    constructor(
-        private readonly role: string,
-        private readonly grant: string[],
-        private readonly filters: object,
-        private readonly paramsFilter?: IParamsFilter
-    ) {
+  constructor(
+    private readonly role: string,
+    private readonly grant: string[],
+    private readonly filters: object,
+    private readonly paramsFilter?: IParamsFilter,
+  ) {
+  }
+
+  can(...permissions: string[]): boolean {
+
+    if (!permissions.length) {
+      return false;
+    }
+    // check grant
+    for (const permission of permissions) {
+      if (!this.grant.includes(permission)) {
+        return false;
+      }
     }
 
-    can(...permissions: string[]): boolean {
+    // check custom filter
+    for (const permission of permissions) {
+      // check particular permission [permission@action]
+      if (
+        this.grant.includes(permission)
+        && permission.includes('@')
+      ) {
+        const filter: string = permission.split('@')[1];
+        const filterService: IFilterPermission = this.filters[filter];
 
-        if (!permissions.length) {
-            return false;
+        if (
+          filterService && !filterService.can(
+          this.paramsFilter ? this.paramsFilter.getParams(filter) : null,
+          )
+        ) {
+          return false;
         }
-        // check grant
-        for (const permission of permissions) {
-            if (!this.grant.includes(permission)) {
-                return false;
-            }
-        }
+      }
+      // check particular permission [permission]
+      if (this.grant.includes(permission)
+        && !permission.includes('@')) {
 
-        // check custom filter
-        for (const permission of permissions) {
-            // check particular permission [permission@action]
+        for (const filter in this.filters) {
+          if (
+            this.filters.hasOwnProperty(filter) &&
+            this.grant.includes(`${permission}@${filter}`)
+          ) {
             if (
-                this.grant.includes(permission)
-                && permission.includes('@')
+              !this.filters[filter].can(
+                this.paramsFilter ? this.paramsFilter.getParams(filter) : null,
+              )
             ) {
-                const filter: string = permission.split('@')[1];
-                const filterService: IFilterPermission = this.filters[filter];
-
-                if (
-                    filterService && !filterService.can(
-                    this.paramsFilter ? this.paramsFilter.getParams(filter) : null
-                    )
-                ) {
-                    return false;
-                }
+              return false;
             }
-            // check particular permission [permission]
-            if (this.grant.includes(permission)
-                && !permission.includes('@')) {
-
-                for (const filter in this.filters) {
-                    if (
-                        this.filters.hasOwnProperty(filter) &&
-                        this.grant.includes(`${permission}@${filter}`)
-                    ) {
-                        if (
-                            !this.filters[filter].can(
-                                this.paramsFilter ? this.paramsFilter.getParams(filter) : null
-                            )
-                        ) {
-                            return false;
-                        }
-                    }
-                }
-            }
+          }
         }
-
-        return true;
+      }
     }
+
+    return true;
+  }
 }
