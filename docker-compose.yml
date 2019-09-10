@@ -3,7 +3,8 @@ version: '3.7'
 services:
   rbac-module:
     container_name: rbac-module
-    command: npm run test
+    command: npm run test:e2e
+    #    command: bash -c "while true; do echo hello; sleep 2; done"
     build:
       context: ./docker
       dockerfile: Dockerfile

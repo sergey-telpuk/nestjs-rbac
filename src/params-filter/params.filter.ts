@@ -1,6 +1,5 @@
 import { IParamsFilter } from './interfaces/params.filter.interface';
 
-
 export class ParamsFilter implements IParamsFilter {
   private storage: object = {};
 

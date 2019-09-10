@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IStorageRbac } from './interfaces/storage.rbac.interface';
+import { IStorageRbac } from '../interfaces/storage.rbac.interface';
 import { ModuleRef } from '@nestjs/core';
 
 @Injectable()

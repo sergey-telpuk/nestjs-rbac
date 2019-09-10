@@ -1,4 +1,4 @@
-import { IStorageRbac } from '../../src/services/interfaces/storage.rbac.interface';
+import { IStorageRbac } from '../../src/interfaces/storage.rbac.interface';
 import { TestFilterOne } from './filters/test.filter.one';
 import { TestFilterTwo } from './filters/test.filter.two';
 import { RBAC_REQUEST_FILTER } from '../../src/constans';
@@ -19,7 +19,7 @@ export const RBAC: IStorageRbac = {
       'permission3',
     ],
     user: ['&userRoot', 'permission2', 'permission1@create', 'permission3@filter1'],
-    userRoot: ['permission4']
+    userRoot: ['permission4'],
 
   },
   filters: {

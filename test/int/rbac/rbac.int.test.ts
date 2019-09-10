@@ -29,88 +29,88 @@ describe('RBAC service', () => {
   describe('Permission', () => {
 
     it('Should return true because admin has permissions for permission1@create',
-    () => {
-      const res = rbacService.getRole('admin').can('permission1@create');
-      expect(res).toBe(true);
-    });
+      () => {
+        const res = rbacService.getRole('admin').can('permission1@create');
+        expect(res).toBe(true);
+      });
 
     it('Should return false because user hasn\'t permissions for permission1@update',
-    () => {
-      const res = rbacService.getRole('user').can('permission1@update');
-      expect(res).toBe(false);
-    });
+      () => {
+        const res = rbacService.getRole('user').can('permission1@update');
+        expect(res).toBe(false);
+      });
 
     it('Should return true because user has permissions for permission1@create',
-    () => {
-      const res = rbacService.getRole('user').can('permission1@create');
-      expect(res).toBe(true);
-    });
+      () => {
+        const res = rbacService.getRole('user').can('permission1@create');
+        expect(res).toBe(true);
+      });
 
   });
 
   describe('Extends', () => {
 
     it('Should return true because admin extends user',
-    () => {
-      const res = rbacService.getRole('admin').can('permission2@update');
-      expect(res).toBe(true);
-    });
+      () => {
+        const res = rbacService.getRole('admin').can('permission2@update');
+        expect(res).toBe(true);
+      });
 
     it('Should return true because user extends userRoot',
-    () => {
-      const res = rbacService.getRole('user').can('permission4@create');
-      expect(res).toBe(true);
-    });
+      () => {
+        const res = rbacService.getRole('user').can('permission4@create');
+        expect(res).toBe(true);
+      });
 
     it('Should return false because deep extends dont work',
-    () => {
-      const res = rbacService.getRole('admin').can('permission4@create');
-      expect(res).toBe(false);
-    });
+      () => {
+        const res = rbacService.getRole('admin').can('permission4@create');
+        expect(res).toBe(false);
+      });
 
   });
 
   describe('Filters', () => {
 
     it('Should return true because admin has the custom filter permission3@filter1',
-    () => {
-      const filter = new ParamsFilter();
-      filter.setParams('filter1', true);
-      const res = rbacService.getRole('admin', filter).can(
-        'permission3@filter1',
-      );
-      expect(res).toBe(true);
-    });
+      () => {
+        const filter = new ParamsFilter();
+        filter.setParams('filter1', true);
+        const res = rbacService.getRole('admin', filter).can(
+          'permission3@filter1',
+        );
+        expect(res).toBe(true);
+      });
 
     it('Should return false because admin has the custom filter ' +
-    'permission3@filter1 permission3@filter1',
-    () => {
-      const filter = new ParamsFilter();
-      filter
-      .setParams('filter1', true)
-      .setParams('filter2', false);
-      const res = rbacService.getRole('admin', filter).can(
-      'permission3@filter2',
-      'permission3@filter1',
-    );
-      expect(res).toBe(false);
-  });
+      'permission3@filter1 permission3@filter1',
+      () => {
+        const filter = new ParamsFilter();
+        filter
+          .setParams('filter1', true)
+          .setParams('filter2', false);
+        const res = rbacService.getRole('admin', filter).can(
+          'permission3@filter2',
+          'permission3@filter1',
+        );
+        expect(res).toBe(false);
+      });
 
     it('Should return false because  of admin has the custom filter3 doesnt exist',
-    () => {
-      const filter = new ParamsFilter();
-      filter.setParams('filter1', true)
-        .setParams('filter2', true)
-        .setParams('filter3', true);
+      () => {
+        const filter = new ParamsFilter();
+        filter.setParams('filter1', true)
+          .setParams('filter2', true)
+          .setParams('filter3', true);
 
-      const res = rbacService.getRole('admin', filter).can(
-        'permission3@filter2',
-        'permission3@filter1',
-        'permission3@filter3',
-      );
+        const res = rbacService.getRole('admin', filter).can(
+          'permission3@filter2',
+          'permission3@filter1',
+          'permission3@filter3',
+        );
 
-      expect(res).toBe(false);
-    });
+        expect(res).toBe(false);
+      });
 
   });
 

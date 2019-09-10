@@ -2,7 +2,7 @@ import { DynamicModule, Global, Module } from '@nestjs/common';
 import { RbacService } from './services/rbac.service';
 import { ModuleRef, Reflector } from '@nestjs/core';
 import { StorageRbacService } from './services/storage.rbac.service';
-import { IStorageRbac } from './services/interfaces/storage.rbac.interface';
+import { IStorageRbac } from './interfaces/storage.rbac.interface';
 
 @Global()
 @Module({
