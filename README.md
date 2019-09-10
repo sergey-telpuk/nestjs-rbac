@@ -143,7 +143,7 @@ const res = rbacService.getRole('admin', filter).can(
 );
 ```
 Also RBAC has a default filter `RBAC_REQUEST_FILTER` which has `request` like argument:
-#####Example:
+##### Example:
 ```typescript
 //===================== filter
 export class RequestFilter implements IFilterPermission {
