@@ -16,11 +16,10 @@ export const RBAC: IStorageRbac = {
     admin: [
       '&user',
       'permission1',
-      `permission3@${RBAC_REQUEST_FILTER}`,
-      'permission3@filter1',
-      'permission3@filter2',
+      'permission3',
     ],
-    user: ['user', 'permission2'],
+    user: ['&userRoot', 'permission2', 'permission1@create', 'permission3@filter1'],
+    userRoot: ['permission4']
 
   },
   filters: {
