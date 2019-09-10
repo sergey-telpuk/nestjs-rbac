@@ -67,7 +67,7 @@ import { I18nModule } from 'nestjs-rbac';
 })
 export class AppModule {}
 ```
-### Using for routers
+#### Using for routers
 ```typescript
 import { RBAcPermissions, RBAcGuard } from 'nestjs-rbac';
 
@@ -85,7 +85,7 @@ export class RbacTestController {
   }
 }
 ```
-### Using like service
+#### Using like service
 ```typescript
 import { RbacService} from 'nestjs-rbac';
 
