@@ -14,7 +14,7 @@ export class RbacService implements IRbac {
     ) {
     }
 
-    getRole(role: string, builderFilter?: IParamsFilter): IRoleRbac {
+    getRole(role: string, paramsFilter?: IParamsFilter): IRoleRbac {
         const storage = this.storageRbacService.getStorage();
         if (!storage.roles || !storage.roles.includes(role)) {
             throw new RbacExceptions('There is no exist a role.');
@@ -24,7 +24,7 @@ export class RbacService implements IRbac {
             role,
             this.storageRbacService.getGrant(role),
             this.storageRbacService.getFilters(),
-            builderFilter
+            paramsFilter
         );
     }
 }

@@ -49,6 +49,15 @@ describe('RBAC Guard', () => {
             .expect(403);
     });
 
+    it('Should return 200, `request filter` checks on contenting `test` inside Header[test-header]',
+     async () => {
+        return request(app.getHttpServer())
+            .get('/admin-request-filter')
+            .set('Role', 'admin')
+            .set('test-header', 'test')
+            .send()
+            .expect(200);
+    });
 
     afterAll(async () => {
         await app.close();

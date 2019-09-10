@@ -2,6 +2,8 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@
 import { Reflector } from '@nestjs/core';
 import { RbacService } from '../services/rbac.service';
 import { IRole } from '../role/interfaces/role.interface';
+import { ParamsFilter } from '../params-filter/params.filter';
+import { RBAC_REQUEST_FILTER } from '../constans';
 
 @Injectable()
 export class RBAcGuard implements CanActivate {
@@ -29,7 +31,9 @@ export class RBAcGuard implements CanActivate {
         }
 
         try {
-            return  this.rbacService.getRole(user.role).can(...permissions);
+            const filter = new ParamsFilter();
+            filter.setParams(RBAC_REQUEST_FILTER, {...request});
+            return  this.rbacService.getRole(user.role, filter).can(...permissions);
         } catch (e) {
             throw new ForbiddenException(e.message);
         }
