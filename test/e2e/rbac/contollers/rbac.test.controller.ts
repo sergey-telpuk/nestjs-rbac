@@ -47,4 +47,44 @@ export class RbacTestController {
     return true;
   }
 
+  @RBAcPermissions(`permission4`)
+  @UseGuards(
+    AuthGuard,
+    RBAcGuard,
+  )
+  @Get('/user-extends-userRoot')
+  async test5(): Promise<boolean> {
+    return true;
+  }
+
+  @RBAcPermissions(`permission4`)
+  @UseGuards(
+    AuthGuard,
+    RBAcGuard,
+  )
+  @Get('/admin-extends-userRoot')
+  async test6(): Promise<boolean> {
+    return true;
+  }
+
+  @RBAcPermissions(`permission1@create`)
+  @UseGuards(
+    AuthGuard,
+    RBAcGuard,
+  )
+  @Get('/user-permission1@create')
+  async test7(): Promise<boolean> {
+    return true;
+  }
+
+  @RBAcPermissions(`permission1@delete`)
+  @UseGuards(
+    AuthGuard,
+    RBAcGuard,
+  )
+  @Get('/user-permission1@delete')
+  async test8(): Promise<boolean> {
+    return true;
+  }
+
 }
