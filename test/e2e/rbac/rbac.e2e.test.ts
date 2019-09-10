@@ -37,7 +37,7 @@ describe('RBAC Guard', () => {
           .expect(200);
       });
 
-    it('Should return 403 becouse admin dont extends userRoot, deep extends dosnt work',
+    it('Should return 403 becouse admin dont extends userRoot, deep extends doesnt work',
       async () => {
         return request(app.getHttpServer())
           .get('/user-extends-userRoot')

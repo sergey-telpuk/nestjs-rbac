@@ -38,7 +38,7 @@ export class RoleRbac implements IRoleRbac {
 
         if (
           filterService && !filterService.can(
-          this.paramsFilter ? this.paramsFilter.getParams(filter) : null,
+          this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
           )
         ) {
           return false;
@@ -55,7 +55,7 @@ export class RoleRbac implements IRoleRbac {
           ) {
             if (
               !this.filters[filter].can(
-                this.paramsFilter ? this.paramsFilter.getParams(filter) : null,
+                this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
               )
             ) {
               return false;

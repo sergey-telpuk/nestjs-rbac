@@ -21,7 +21,7 @@ describe('RBAC service', () => {
     ).compile();
 
     app = moduleFixture.createNestApplication();
-    rbacService = moduleFixture.get<RbacService>(RbacService);
+    rbacService = moduleFixture.get(RbacService);
 
     await app.init();
   });
@@ -75,7 +75,7 @@ describe('RBAC service', () => {
     it('Should return true because admin has the custom filter permission3@filter1',
       () => {
         const filter = new ParamsFilter();
-        filter.setParams('filter1', true);
+        filter.setParam('filter1', true);
         const res = rbacService.getRole('admin', filter).can(
           'permission3@filter1',
         );
@@ -87,8 +87,8 @@ describe('RBAC service', () => {
       () => {
         const filter = new ParamsFilter();
         filter
-          .setParams('filter1', true)
-          .setParams('filter2', false);
+          .setParam('filter1', true)
+          .setParam('filter2', false);
         const res = rbacService.getRole('admin', filter).can(
           'permission3@filter2',
           'permission3@filter1',
@@ -99,9 +99,9 @@ describe('RBAC service', () => {
     it('Should return false because  of admin has the custom filter3 doesnt exist',
       () => {
         const filter = new ParamsFilter();
-        filter.setParams('filter1', true)
-          .setParams('filter2', true)
-          .setParams('filter3', true);
+        filter.setParam('filter1', true)
+          .setParam('filter2', true)
+          .setParam('filter3', true);
 
         const res = rbacService.getRole('admin', filter).can(
           'permission3@filter2',
