@@ -32,9 +32,7 @@ export const RBACstorage: IStorageRbac = {
       'permission1',
       'permission3',
     ],
-    user: ['&userRoot', 'permission2', 'permission1@create', 'permission3@filter1'],
-    userRoot: ['permission4'],
-
+    user: ['permission2', 'permission1@create', 'permission3@filter1'],
   },
   filters: {
     filter1: TestFilterOne,
@@ -53,7 +51,9 @@ export const RBACstorage: IStorageRbac = {
 `grants`: objects of assigned permission to roles
 
 `filters`:  objects of customs roles
-
+### Grants symbols 
+`&`: extends grant by another grant, for instance `user` extends `admin`
+`@`: calls particular action from permission, for instance `permission1@update`
 ### Using
 ```typescript
 import { Module } from '@nestjs/common';
@@ -167,7 +167,7 @@ export const RBAC: IStorageRbac = {
     [RBAC_REQUEST_FILTER]: RequestFilter,
   },
 };  
-//===================== route
+//===================== using for routes
   @RBAcPermissions(`permission1@${RBAC_REQUEST_FILTER}`)
   @UseGuards(
     AuthGuard,
