@@ -1,8 +1,8 @@
 {
   "name": "nestjs-rbac",
-  "version": "0.0.2",
-  "description": "",
-  "author": "",
+  "version": "1.0.0",
+  "description": "Rbac for NestJs",
+  "author": "Sergey Telpuk",
   "license": "MIT",
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json",
@@ -14,6 +14,10 @@
     "test:e2e": "jest  --verbose  --config ./test/e2e/jest-e2e.json",
     "test:int": "jest  --verbose --config ./test/int/jest-int.json",
     "test": "jest --verbose --config ./test/jest.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ToonvanStrijp/nestjs-i18n"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
