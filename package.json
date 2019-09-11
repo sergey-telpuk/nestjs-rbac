@@ -45,10 +45,6 @@
     "tslint": "5.20.0",
     "typescript": "3.6.3"
   },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com/"
-  },
   "jest": {
     "moduleFileExtensions": [
       "js",
