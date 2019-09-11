@@ -1,5 +1,5 @@
 {
-  "name": "nestjsrbac",
+  "name": "nestjs-rbac",
   "version": "1.0.0",
   "description": "Rbac for NestJs",
   "author": "Sergey Telpuk",
