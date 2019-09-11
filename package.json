@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sergey-telpuk/nestjs-rbac"
+    "url": "https://github.com/sergey-telpuk/nestjs-rbac.git"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -61,5 +61,10 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ]
 }
