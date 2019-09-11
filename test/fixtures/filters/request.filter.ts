@@ -1,4 +1,4 @@
-import { IFilterPermission } from "../../../src/permissions/interfaces/filter.permission.interfac";
+import { IFilterPermission } from '../../../src/permissions/interfaces/filter.permission.interface';
 
 export class RequestFilter implements IFilterPermission {
 
