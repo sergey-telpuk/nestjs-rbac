@@ -53,6 +53,7 @@ export const RBACstorage: IStorageRbac = {
 `filters`:  objects of customs roles
 ### Grants symbols 
 `&`: extends grant by another grant, for instance `user` extends `admin`
+
 `@`: calls particular action from permission, for instance `permission1@update`
 ### Using
 ```typescript
