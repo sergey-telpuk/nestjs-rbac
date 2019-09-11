@@ -1,5 +1,5 @@
 {
-  "name": "nestjs-rbac",
+  "name": "@aswesomenestjs/nestjsrbac",
   "version": "1.0.0",
   "description": "Rbac for NestJs",
   "author": "Sergey Telpuk",
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sergey-telpuk/nestjs-rbac"
+    "url": "git+https://github.com/sergey-telpuk/nestjs-rbac.git"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -44,6 +44,10 @@
     "tsconfig-paths": "3.8.0",
     "tslint": "5.20.0",
     "typescript": "3.6.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com/"
   },
   "jest": {
     "moduleFileExtensions": [
