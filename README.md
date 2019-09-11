@@ -15,8 +15,7 @@ export interface IStorageRbac {
   filters: { [key: string]: any | IFilterPermission };
 }
 ```
-For instance: 
-
+### For instance: 
 ```typescript
 export const RBACstorage: IStorageRbac = {
   roles: ['admin', 'user'],
@@ -51,10 +50,10 @@ export const RBACstorage: IStorageRbac = {
 `grants`: objects of assigned permission to roles
 
 `filters`:  objects of customs roles
-### Grants symbols 
+### Grant symbols 
 `&`: extends grant by another grant, for instance `admin` extends `user` _(only support one level inheritance)_
 
-`@`: calls particular action from permission, for instance `permission1@update`
+`@`: a particular action from permission, for instance `permission1@update`
 ### Using
 ```typescript
 import { Module } from '@nestjs/common';
@@ -104,10 +103,9 @@ export class RbacTestController {
   }
 }
 ```
-#### Using customs filters 
-`filter` is a great opportunity of customising behaviour rbac. 
-For creating `filter`, there is need to implement `IFilterPermission` interface, which requires for implementing  `can` method,
- and bind a key filter with filter implementation, like below:
+#### Using the custom filters 
+`filter` is a great opportunity of customising behaviour RBAC. 
+For creating `filter`, there is need to implement `IFilterPermission` interface, which requires for implementing `can` method, and bind a key filter with filter implementation, like below:
 ```typescript
 export const RBAC: IStorageRbac = {
   roles: ['role'],
@@ -123,7 +121,7 @@ export const RBAC: IStorageRbac = {
     filter1: TestFilter,
   },
 };  
-//===================== filter
+//===================== implementing filter
 import { IFilterPermission} from 'nestjs-rbac';
 
 export class TestFilter implements IFilterPermission {
@@ -134,16 +132,16 @@ export class TestFilter implements IFilterPermission {
 
 }
 ```
-if need to pass params, RBAC uses `ParamsFilter` object:
+`ParamsFilter` services for passing arguments into particular filter:
 ```typescript
 const filter = new ParamsFilter();
-filter.setParam('filter1', any);
+filter.setParam('filter1', some payload);
 
 const res = rbacService.getRole('admin', filter).can(
   'permission1@filter1',
 );
 ```
-Also RBAC has a default filter `RBAC_REQUEST_FILTER` which has `request` like argument:
+Also RBAC has a default filter `RBAC_REQUEST_FILTER` which has `request` object as argument:
 ##### Example:
 ```typescript
 //===================== filter
@@ -179,4 +177,5 @@ export const RBAC: IStorageRbac = {
     return true;
   }
 ```
+
 
