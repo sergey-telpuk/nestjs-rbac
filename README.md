@@ -3,7 +3,7 @@
 The **rbac** module for [Nest](https://github.com/nestjs/nest).
 
 ## Installation
-npm i --save nestjs-rbac(it's waiting for release)
+npm i --save nestjs-rbac
 
 ## Quick Start
 For using RBAC there is need to implement `IStorageRbac` 
@@ -52,7 +52,7 @@ export const RBACstorage: IStorageRbac = {
 
 `filters`:  objects of customs roles
 ### Grants symbols 
-`&`: extends grant by another grant, for instance `user` extends `admin`
+`&`: extends grant by another grant, for instance `admin` extends `user` _(only support one level inheritance)_
 
 `@`: calls particular action from permission, for instance `permission1@update`
 ### Using
