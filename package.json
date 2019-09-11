@@ -1,6 +1,6 @@
 {
   "name": "nestjs-rbac",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Rbac for NestJs",
   "author": "Sergey Telpuk",
   "license": "MIT",
