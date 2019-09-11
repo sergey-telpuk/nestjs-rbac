@@ -1,6 +1,6 @@
 {
   "name": "nestjs-rbac",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Rbac for NestJs",
   "author": "Sergey Telpuk",
   "license": "MIT",
@@ -63,5 +63,9 @@
     "dist",
     "LICENSE",
     "README.md"
+  ],
+  "keywords": [
+    "rbac",
+    "nestjs"
   ]
 }
