@@ -136,7 +136,7 @@ export class TestFilter implements IFilterPermission {
 if need to pass params, RBAC uses `ParamsFilter` object:
 ```typescript
 const filter = new ParamsFilter();
-filter.setParams('filter1', any);
+filter.setParam('filter1', any);
 
 const res = rbacService.getRole('admin', filter).can(
   'permission1@filter1',
