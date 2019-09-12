@@ -7,3 +7,6 @@ cache:
 script:
   - npm run lint
   - npm run test -- --ci --verbose --coverage
+  - npm install codecov -g
+after_success:
+  - codecov
