@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/sergey-telpuk/nestjs-rbac.svg?branch=master)](https://travis-ci.org/sergey-telpuk/nestjs-rbac) [![Greenkeeper badge](https://badges.greenkeeper.io/sergey-telpuk/nestjs-rbac.svg)](https://greenkeeper.io/)
+[![codecov](https://codecov.io/gh/sergey-telpuk/nestjs-rbac/branch/master/graph/badge.svg)](https://codecov.io/gh/sergey-telpuk/nestjs-rbac)
 ## Description
 The **rbac** module for [Nest](https://github.com/nestjs/nest).
 
