@@ -2,11 +2,12 @@ import { INestApplication } from '@nestjs/common';
 import { RBAcModule } from '../../../src/rbac.module';
 import { RbacService } from '../../../src/services/rbac.service';
 import { Test } from '@nestjs/testing';
-import { RBAC } from '../../fixtures/storage';
 import { ParamsFilter } from '../../../src/params-filter/params.filter';
+import { AsyncService } from '../../fixtures/services/async.service';
 
+jest.setTimeout(30000);
 
-describe('RBAC service', () => {
+describe('RBAC async service', () => {
   let app: INestApplication;
   let rbacService: RbacService;
 
@@ -14,7 +15,7 @@ describe('RBAC service', () => {
     const moduleFixture = await Test.createTestingModule(
       {
         imports: [
-          RBAcModule.forRoot(RBAC),
+          RBAcModule.forDynamic(AsyncService),
         ],
         controllers: [],
       },

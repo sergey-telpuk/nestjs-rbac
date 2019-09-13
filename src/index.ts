@@ -1,4 +1,3 @@
-
 export * from './services/storage.rbac.service';
 export * from './rbac.module';
 export * from './exceptions/rbac.exceptions';
@@ -13,3 +12,4 @@ export * from './params-filter/params.filter';
 export * from './permissions/interfaces/filter.permission.interface';
 export * from './services/interfaces/rbac.interface';
 export * from './services/rbac.service';
+export * from './interfaces/dynamic.storage.rbac.interface';

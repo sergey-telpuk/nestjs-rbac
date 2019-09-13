@@ -1,4 +1,5 @@
-"use strict";
+'use strict';
+
 function __export(m) {
   for (var p in m) {
     if (!exports.hasOwnProperty(p)) {
@@ -6,5 +7,6 @@ function __export(m) {
     }
   }
 }
+
 exports.__esModule = true;
-__export(require("./dist"));
+__export(require('./dist'));

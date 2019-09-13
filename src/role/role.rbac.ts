@@ -15,7 +15,6 @@ export class RoleRbac implements IRoleRbac {
   }
 
   can(...permissions: string[]): boolean {
-
     if (!permissions.length) {
       return false;
     }

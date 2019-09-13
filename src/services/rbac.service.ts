@@ -14,16 +14,16 @@ export class RbacService implements IRbac {
   ) {
   }
 
-  getRole(role: string, paramsFilter?: IParamsFilter): IRoleRbac {
-    const storage = this.storageRbacService.getStorage();
+  async getRole(role: string, paramsFilter?: IParamsFilter): Promise<IRoleRbac> {
+    const storage = await this.storageRbacService.getStorage();
     if (!storage.roles || !storage.roles.includes(role)) {
       throw new RbacExceptions('There is no exist a role.');
     }
 
     return new RoleRbac(
       role,
-      this.storageRbacService.getGrant(role),
-      this.storageRbacService.getFilters(),
+      await this.storageRbacService.getGrant(role),
+      await this.storageRbacService.getFilters(),
       paramsFilter,
     );
   }

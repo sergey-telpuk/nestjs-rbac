@@ -3,6 +3,7 @@ import { RbacService } from './services/rbac.service';
 import { ModuleRef, Reflector } from '@nestjs/core';
 import { StorageRbacService } from './services/storage.rbac.service';
 import { IStorageRbac } from './interfaces/storage.rbac.interface';
+import { IDynamicStorageRbac } from './interfaces/dynamic.storage.rbac.interface';
 
 @Global()
 @Module({
@@ -22,17 +23,35 @@ export class RBAcModule {
     providers?: any[],
     imports?: any[],
   ): DynamicModule {
+
+    return RBAcModule.forDynamic(
+      /* tslint:disable */
+      class {
+        async getRbac(): Promise<IStorageRbac> {
+          return rbac;
+        };
+      },
+      providers,
+      imports,
+    );
+  }
+
+   static forDynamic(
+    rbac: new () => IDynamicStorageRbac,
+    providers?: any[],
+    imports?: any[],
+  ): DynamicModule {
     return {
       module: RBAcModule,
       providers: [
-        ...Object.keys(rbac.filters).map((key): any => rbac.filters[key]),
         ...(providers || []),
+        rbac,
         {
           provide: StorageRbacService,
-          useFactory: (moduleRef: ModuleRef) => {
-            return new StorageRbacService(moduleRef, rbac);
+          useFactory: (moduleRef: ModuleRef, rbacService: IDynamicStorageRbac) => {
+            return new StorageRbacService(moduleRef, rbacService);
           },
-          inject: [ModuleRef],
+          inject: [ModuleRef, rbac],
         },
       ],
       imports: [

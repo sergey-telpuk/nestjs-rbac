@@ -1,50 +1,58 @@
 import { Injectable } from '@nestjs/common';
 import { IStorageRbac } from '../interfaces/storage.rbac.interface';
 import { ModuleRef } from '@nestjs/core';
+import { IDynamicStorageRbac } from '../interfaces/dynamic.storage.rbac.interface';
 
 @Injectable()
 export class StorageRbacService {
   constructor(
     private readonly moduleRef: ModuleRef,
-    private readonly rbac: IStorageRbac,
+    private readonly rbac: IDynamicStorageRbac,
   ) {
 
   }
 
-  getStorage(): IStorageRbac {
-    return this.rbac;
+  async getStorage(): Promise<IStorageRbac> {
+    return await this.rbac.getRbac();
   }
 
-  getPermissions(): object {
-    return this.rbac.permissions;
+  async getPermissions(): Promise<object> {
+    return (await this.rbac.getRbac()).permissions;
   }
 
-  getGrants(): object {
-    return this.rbac.grants;
+  async getGrants(): Promise<object> {
+    return (await this.rbac.getRbac()).grants;
   }
 
-  getRoles(): string[] {
-    return this.rbac.roles;
+  async getRoles(): Promise<string[]> {
+    return (await this.rbac.getRbac()).roles;
   }
 
-  getGrant(role: string): string[] {
-    const grant: object = this.parseGrants();
+  async getGrant(role: string): Promise<string[]> {
+    const grant: object = await this.parseGrants();
 
     return grant[role] || [];
   }
 
-  getFilters(): object {
+  async getFilters(): Promise<object> {
     const result: any = {};
-
-    Object.keys(this.rbac.filters).map((key): any => {
-      result[key] = this.moduleRef.get(this.rbac.filters[key]);
-    });
+    const filters = (await this.getStorage()).filters;
+    /* tslint:disable */
+    for (const key in filters) {
+      let filter;
+      try {
+        filter = this.moduleRef.get(filters[key]);
+      } catch (e) {
+        filter = await this.moduleRef.create(filters[key]);
+      }
+      result[key] = filter;
+    }
 
     return result;
   }
 
-  private parseGrants(): object {
-    const { grants, permissions } = this.rbac;
+  private async parseGrants(): Promise<object> {
+    const { grants, permissions } = await this.rbac.getRbac();
     const result = {};
     Object.keys(grants).forEach((key) => {
       const grant = grants[key];
