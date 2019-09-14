@@ -5,11 +5,11 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AsyncService implements IDynamicStorageRbac{
   async getRbac(): Promise<IStorageRbac> {
-    return new Promise((resolve)=>{
+    return new Promise((resolve) => {
       // resolve(RBAC)
-        setTimeout(()=>{
-            resolve(RBAC)
-        },1000)
-    })
+        setTimeout(() => {
+            resolve(RBAC);
+        },1000);
+    });
   }
 }
