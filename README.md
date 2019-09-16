@@ -71,6 +71,7 @@ import { RBAcModule } from 'nestjs-rbac';
 export class AppModule {}
 ```
 ### Using RBAC like a dynamic storage
+_There is enough to implement IDynamicStorageRbac interface._ 
 ```typescript
 import { Module } from '@nestjs/common';
 import { RBAcModule } from 'nestjs-rbac';
@@ -85,18 +86,18 @@ export class AppModule {}
 // implement dynamic storage
 import { IDynamicStorageRbac, IStorageRbac } from 'nestjs-rbac';
 @Injectable()
-export class AsyncService implements IDynamicStorageRbac{
+export class AsyncService implements IDynamicStorageRbac {
+  constructor(
+    private readonly repository: AnyRepository
+  ) {
+    
+  }
   async getRbac(): Promise<IStorageRbac> {
-    return new Promise((resolve) => {
-      // resolve(RBAC)
-        setTimeout(() => {
-            resolve(RBAC);
-        },1000);
-    });
+      return  await this.repository.getRbac(); //use any persistence storage for getting RBAC
   }
 }
 ```
-#### Using for routers
+#### Using for routers 
 ```typescript
 import { RBAcPermissions, RBAcGuard } from 'nestjs-rbac';
 
