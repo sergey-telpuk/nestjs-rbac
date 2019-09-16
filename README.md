@@ -57,10 +57,10 @@ export const RBACstorage: IStorageRbac = {
 `&`: extends grant by another grant, for instance `admin` extends `user` _(only support one level inheritance)_
 
 `@`: a particular action from permission, for instance `permission1@update`
-### Using
+### Using RBAC like an unchangeable storage 
 ```typescript
 import { Module } from '@nestjs/common';
-import { I18nModule } from 'nestjs-rbac';
+import { RBAcModule } from 'nestjs-rbac';
 
 @Module({
   imports: [
@@ -69,6 +69,32 @@ import { I18nModule } from 'nestjs-rbac';
   controllers: []
 })
 export class AppModule {}
+```
+### Using RBAC like a dynamic storage
+```typescript
+import { Module } from '@nestjs/common';
+import { RBAcModule } from 'nestjs-rbac';
+
+@Module({
+  imports: [
+    RBAcModule.forDynamic(AsyncService),
+  ],
+  controllers: []
+})
+export class AppModule {}
+// implement dynamic storage
+import { IDynamicStorageRbac, IStorageRbac } from 'nestjs-rbac';
+@Injectable()
+export class AsyncService implements IDynamicStorageRbac{
+  async getRbac(): Promise<IStorageRbac> {
+    return new Promise((resolve) => {
+      // resolve(RBAC)
+        setTimeout(() => {
+            resolve(RBAC);
+        },1000);
+    });
+  }
+}
 ```
 #### Using for routers
 ```typescript
@@ -101,7 +127,7 @@ export class RbacTestController {
     
   @Get('/')
   async test1(): Promise<boolean> {
-    this.rbac.getRole(role).can('permission', 'permission@create');
+    await this.rbac.getRole(role).can('permission', 'permission@create');
     return true;
   }
 }
@@ -140,7 +166,7 @@ export class TestFilter implements IFilterPermission {
 const filter = new ParamsFilter();
 filter.setParam('filter1', some payload);
 
-const res = rbacService.getRole('admin', filter).can(
+const res = await rbacService.getRole('admin', filter).can(
   'permission1@filter1',
 );
 ```
