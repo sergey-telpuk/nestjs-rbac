@@ -64,7 +64,7 @@ import { RBAcModule } from 'nestjs-rbac';
 
 @Module({
   imports: [
-    RBAcModule.forRoot(RBACstorage),
+    RBAcModule.forRoot(RBAC),
   ],
   controllers: []
 })
