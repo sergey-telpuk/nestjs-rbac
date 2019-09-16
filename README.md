@@ -64,7 +64,7 @@ import { RBAcModule } from 'nestjs-rbac';
 
 @Module({
   imports: [
-    RBAcModule.forRoot(RBAC),
+    RBAcModule.forRoot(IStorageRbac),
   ],
   controllers: []
 })
@@ -78,7 +78,7 @@ import { RBAcModule } from 'nestjs-rbac';
 
 @Module({
   imports: [
-    RBAcModule.forDynamic(AsyncService),
+    RBAcModule.forDynamic(DynamicStorageService),
   ],
   controllers: []
 })
@@ -86,7 +86,7 @@ export class AppModule {}
 // implement dynamic storage
 import { IDynamicStorageRbac, IStorageRbac } from 'nestjs-rbac';
 @Injectable()
-export class AsyncService implements IDynamicStorageRbac {
+export class  imDynamicStorageService iplements IDynamicStorageRbac {
   constructor(
     private readonly repository: AnyRepository
   ) {
@@ -117,7 +117,7 @@ export class RbacTestController {
 ```
 #### Using like service
 ```typescript
-import { RbacService} from 'nestjs-rbac';
+import { RbacService } from 'nestjs-rbac';
 
 @Controller()
 export class RbacTestController {
