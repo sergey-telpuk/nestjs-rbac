@@ -86,7 +86,7 @@ export class AppModule {}
 // implement dynamic storage
 import { IDynamicStorageRbac, IStorageRbac } from 'nestjs-rbac';
 @Injectable()
-export class  imDynamicStorageService iplements IDynamicStorageRbac {
+export class  DynamicStorageService implements IDynamicStorageRbac {
   constructor(
     private readonly repository: AnyRepository
   ) {
