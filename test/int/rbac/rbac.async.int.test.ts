@@ -4,6 +4,7 @@ import { RbacService } from '../../../src/services/rbac.service';
 import { Test } from '@nestjs/testing';
 import { ParamsFilter } from '../../../src/params-filter/params.filter';
 import { AsyncService } from '../../fixtures/services/async.service';
+import { RbacCache } from '../../../src/cache/rbac.cache';
 
 jest.setTimeout(30000);
 
@@ -15,7 +16,9 @@ describe('RBAC async service', () => {
     const moduleFixture = await Test.createTestingModule(
       {
         imports: [
-          RBAcModule.forDynamic(AsyncService),
+          RBAcModule
+            .useCache(RbacCache, {KEY: 'RBAC', TTL: 400})
+            .forDynamic(AsyncService),
         ],
         controllers: [],
       },

@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import { IStorageRbac } from '../interfaces/storage.rbac.interface';
 import { ModuleRef } from '@nestjs/core';
 import { IDynamicStorageRbac } from '../interfaces/dynamic.storage.rbac.interface';
+import { ICacheRBAC } from '../interfaces/cache.rbac.interface';
 
 @Injectable()
 export class StorageRbacService {
   constructor(
     private readonly moduleRef: ModuleRef,
     private readonly rbac: IDynamicStorageRbac,
+    @Optional() @Inject('ICacheRBAC')
+    private readonly cache?: ICacheRBAC,
   ) {
 
   }
@@ -52,6 +55,15 @@ export class StorageRbacService {
   }
 
   private async parseGrants(): Promise<object> {
+
+    if (this.cache) {
+      const cache = await this.getFromCache();
+      if (cache) {
+
+        return cache;
+      }
+    }
+
     const { grants, permissions } = await this.rbac.getRbac();
     const result = {};
     Object.keys(grants).forEach((key) => {
@@ -127,6 +139,18 @@ export class StorageRbacService {
 
     });
 
+    if (this.cache) {
+      this.setIntoCache(result);
+    }
+
     return result;
+  }
+
+  private async getFromCache(): Promise<object | null> {
+    return this.cache.get();
+  }
+
+  private async setIntoCache(value: object): Promise<void> {
+    await this.cache.set(value);
   }
 }
