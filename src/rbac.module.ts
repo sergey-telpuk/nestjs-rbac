@@ -58,53 +58,29 @@ export class RBAcModule {
     imports?: any[],
   ): DynamicModule {
     const inject = [ModuleRef, rbac];
-
+    const commonProviders = [];
     if (RBAcModule.cache) {
+      commonProviders.push(RBAcModule.cache,{
+        provide: 'ICacheRBAC',
+        useFactory: (cache: ICacheRBAC): ICacheRBAC => {
+          return RBAcModule.setCacheOptions(cache);
+        },
+        inject: [RBAcModule.cache],
+      });
       inject.push(RBAcModule.cache);
     }
 
-    const commonProviders = [
+    commonProviders.push(...[
       ...(providers || []),
       rbac,
       {
         provide: StorageRbacService,
         useFactory: async (moduleRef: ModuleRef, rbacService: IDynamicStorageRbac, cache?: ICacheRBAC) => {
-          if (cache && !RBAcModule.cacheOptions) {
-            return cache;
-          }
-          if (cache && RBAcModule.cacheOptions.KEY) {
-            cache.KEY = RBAcModule.cacheOptions.KEY;
-          }
-
-          if (cache && RBAcModule.cacheOptions.TTL) {
-            cache.TTL = RBAcModule.cacheOptions.TTL;
-          }
-          return new StorageRbacService(moduleRef, rbacService, cache);
+          return new StorageRbacService(moduleRef, rbacService, RBAcModule.setCacheOptions(cache));
         },
         inject,
       },
-    ];
-
-    if (RBAcModule.cache) {
-      commonProviders.push(RBAcModule.cache, {
-        provide: 'ICacheRBAC',
-        useFactory: (cache: ICacheRBAC): ICacheRBAC => {
-          if (!RBAcModule.cacheOptions) {
-            return cache;
-          }
-          if (RBAcModule.cacheOptions.KEY) {
-            cache.KEY = RBAcModule.cacheOptions.KEY;
-          }
-
-          if (RBAcModule.cacheOptions.TTL) {
-            cache.TTL = RBAcModule.cacheOptions.TTL;
-          }
-
-          return cache;
-        },
-        inject: [RBAcModule.cache],
-      });
-    }
+    ]);
 
     return {
       module: RBAcModule,
@@ -113,5 +89,23 @@ export class RBAcModule {
         ...(imports || []),
       ],
     };
+  }
+
+  private static setCacheOptions(cache?: ICacheRBAC) {
+    if (!cache || RBAcModule.cacheOptions) {
+      return cache;
+    }
+    if (!RBAcModule.cacheOptions) {
+      return cache;
+    }
+    if (RBAcModule.cacheOptions.KEY) {
+      cache.KEY = RBAcModule.cacheOptions.KEY;
+    }
+
+    if (RBAcModule.cacheOptions.TTL) {
+      cache.TTL = RBAcModule.cacheOptions.TTL;
+    }
+
+    return cache;
   }
 }
