@@ -107,9 +107,9 @@ export class RbacTestController {
 
   @RBAcPermissions('permission', 'permission@create')
   @UseGuards(
-//Any Guard for getting add user to request:  
+// Any Guard for getting add & add user to request:  
 // const request = context.switchToHttp().getRequest();
-// const user = request.user;
+// request.user = user;
     GuardIsForAddingUserToRequestGuard, 
     RBAcGuard,
   )
@@ -213,7 +213,7 @@ export const RBAC: IStorageRbac = {
 ```
 ### Performance
 By default, RBAC storage always parses grants for each request, in some cases, it can be a very expensive operation.
-The more RBAC storage the more taking time for parsing. For saving performance RBAC has a cache. 
+The more RBAC storage the more taking time for parsing. For saving performance RBAC has built-in a cache based on [node-cache](https://github.com/node-cache/node-cache)
 #### Using cache
 ```typescript
 import { RbacCache } from 'nestjs-rbac';
@@ -224,12 +224,7 @@ import { RbacCache } from 'nestjs-rbac';
   ],
 })
 ```
-#### Inject cache for controlling
-```typescript
-import { ICacheRBAC } from 'nestjs-rbac';
-...
-@Inject('ICacheRBAC') cache: ICacheRBAC
-```
+if you need to change a cache storage, there is enough to implement  `ICacheRBAC`
 #### ICacheRBAC
 ```typescript
 export interface ICacheRBAC {
@@ -246,6 +241,12 @@ export interface ICacheRBAC {
 
   del(): void;
 }
+```
+#### Inject `ICacheRBAC`
+```typescript
+import { ICacheRBAC } from 'nestjs-rbac';
+...
+@Inject('ICacheRBAC') cache: ICacheRBAC
 ```
 
 
