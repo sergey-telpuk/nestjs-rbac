@@ -213,7 +213,7 @@ export const RBAC: IStorageRbac = {
 ```
 ### Performance
 By default, RBAC storage always parses grants for each request, in some cases, it can be a very expensive operation.
-The more RBAC storage the more taking time for parsing. For saving performance RBAC has built-in a cache based on [node-cache](https://github.com/node-cache/node-cache)
+The bigger RBAC storage, the more taking time for parsing. For saving performance RBAC has built-in a cache, based on [node-cache](https://github.com/node-cache/node-cache)
 #### Using cache
 ```typescript
 import { RbacCache } from 'nestjs-rbac';
