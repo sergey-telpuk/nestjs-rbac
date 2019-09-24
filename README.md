@@ -2,7 +2,7 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/sergey-telpuk/nestjs-rbac.svg)](https://greenkeeper.io/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sergey-telpuk/nestjs-rbac/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sergey-telpuk/nestjs-rbac/)
 [![codecov](https://codecov.io/gh/sergey-telpuk/nestjs-rbac/branch/master/graph/badge.svg)](https://codecov.io/gh/sergey-telpuk/nestjs-rbac)
-![npm](https://img.shields.io/npm/dw/nestjs-rbac)
+[![npm](https://img.shields.io/npm/dw/nestjs-rbac)](https://www.npmjs.com/package/nestjs-rbac)
 ## Description
 The **rbac** module for [Nest](https://github.com/nestjs/nest).
 
