@@ -10,7 +10,7 @@ The **rbac** module for [Nest](https://github.com/nestjs/nest).
 npm i --save nestjs-rbac
 
 ## Quick Start
-For using RBAC there is need to implement `IStorageRbac` 
+For using `RBAC` there is need to implement `IStorageRbac` 
 ```typescript
 export interface IStorageRbac {
   roles: string[];
@@ -53,7 +53,7 @@ export const RBACstorage: IStorageRbac = {
 
 `grants`: objects of assigned permission to roles
 
-`filters`:  objects of customs roles
+`filters`:  objects of customized behavior
 ### Grant symbols 
 `&`: extends grant by another grant, for instance `admin` extends `user` _(only support one level inheritance)_
 
@@ -94,7 +94,7 @@ export class  DynamicStorageService implements IDynamicStorageRbac {
     
   }
   async getRbac(): Promise<IStorageRbac> {
-//use any persistence storage for getting RBAC
+//use any persistence storage for getting `RBAC`
       return  await this.repository.getRbac();
   }
 }
@@ -108,9 +108,10 @@ export class RbacTestController {
 
   @RBAcPermissions('permission', 'permission@create')
   @UseGuards(
-// Any Guard for getting add & add user to request:  
-// const request = context.switchToHttp().getRequest();
-// request.user = user;
+// Any Guard for getting & adding user to request which implements `IRole` interface from `nestjs-rbac`:  
+//*NOTE: 
+//  const request = context.switchToHttp().getRequest();
+//  const user: IRole = request.user;
     GuardIsForAddingUserToRequestGuard, 
     RBAcGuard,
   )
