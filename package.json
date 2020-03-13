@@ -22,7 +22,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "@nestjs/common": "^6.0.0",
+    "@nestjs/common": "^7.0.0",
     "@nestjs/core": "^6.0.0",
     "@nestjs/platform-express": "^6.6.7",
     "node-cache": "^5.0.0",
