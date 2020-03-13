@@ -23,7 +23,7 @@
   "types": "./dist/index.d.ts",
   "dependencies": {
     "@nestjs/common": "^7.0.0",
-    "@nestjs/core": "^6.0.0",
+    "@nestjs/core": "^7.0.0",
     "@nestjs/platform-express": "^6.6.7",
     "node-cache": "^5.0.0",
     "reflect-metadata": "^0.1.12",
