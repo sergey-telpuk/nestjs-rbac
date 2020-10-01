@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/sergey-telpuk/nestjs-rbac/branch/master/graph/badge.svg)](https://codecov.io/gh/sergey-telpuk/nestjs-rbac)
 [![npm](https://img.shields.io/npm/dw/nestjs-rbac)](https://www.npmjs.com/package/nestjs-rbac)
 ![RBAC CI](https://github.com/sergey-telpuk/nestjs-rbac/workflows/RBAC%20CI/badge.svg)
+![RBAC CD](https://github.com/sergey-telpuk/nestjs-rbac/workflows/RBAC%20CD/badge.svg)
 ## Description
 The **rbac** module for [Nest](https://github.com/nestjs/nest).
 
@@ -116,6 +117,28 @@ export class RbacTestController {
     GuardIsForAddingUserToRequestGuard,
     RBAcGuard,
   )
+  @Get('/')
+  async test1(): Promise<boolean> {
+    return true;
+  }
+}
+```
+#### Using for a whole controller
+It's applicable with the crud library, for example [nestjsx/crud](https://github.com/nestjsx/crud)
+```typescript
+import { RBAcPermissions, RBAcGuard } from 'nestjs-rbac';
+
+@RBAcPermissions('permission', 'permission@create')
+@UseGuards(
+// Any Guard for getting & adding user to request which implements `IRole` interface from `nestjs-rbac`:
+//*NOTE:
+//  const request = context.switchToHttp().getRequest();
+//  const user: IRole = request.user;
+		GuardIsForAddingUserToRequestGuard,
+		RBAcGuard,
+)
+@Controller()
+export class RbacTestController {
   @Get('/')
   async test1(): Promise<boolean> {
     return true;
