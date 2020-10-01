@@ -8,3 +8,7 @@ tsconfig.json
 tests
 docker
 docker-compose.yml
+.circleci
+.github
+.travis.yml
+test
