@@ -128,21 +128,19 @@ It's applicable with the crud library, for example [nestjsx/crud](https://github
 ```typescript
 import { RBAcPermissions, RBAcGuard } from 'nestjs-rbac';
 
-@RBAcPermissions('permission', 'permission@create')
+@Crud({
+	model: {
+		type: Company,
+	},
+})
+@RBAcPermissions('permission2')
 @UseGuards(
-// Any Guard for getting & adding user to request which implements `IRole` interface from `nestjs-rbac`:
-//*NOTE:
-//  const request = context.switchToHttp().getRequest();
-//  const user: IRole = request.user;
-		GuardIsForAddingUserToRequestGuard,
+		AuthGuard,
 		RBAcGuard,
 )
-@Controller()
-export class RbacTestController {
-  @Get('/')
-  async test1(): Promise<boolean> {
-    return true;
-  }
+@Controller('companies')
+export class CompaniesController implements CrudController<Company> {
+	constructor(public service: CompaniesService) {}
 }
 ```
 #### Using like service
