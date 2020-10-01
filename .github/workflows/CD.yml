@@ -1,0 +1,30 @@
+name: RBAC CD
+on:
+  push:
+    tags:
+      - 'v*'
+#on: [push]
+jobs:
+  release:
+    name: Publish Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Use this GitHub Action
+      - name: Check package version
+        uses: technote-space/package-version-check-action@v1
+        with:
+          COMMIT_DISABLED: 1
+
+      - name: Install Package dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Publish
+        run: |
+          npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
+          npm publish
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

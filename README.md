@@ -1,8 +1,9 @@
-[![Build Status](https://travis-ci.org/sergey-telpuk/nestjs-rbac.svg?branch=master)](https://travis-ci.org/sergey-telpuk/nestjs-rbac) 
+[![Build Status](https://travis-ci.org/sergey-telpuk/nestjs-rbac.svg?branch=master)](https://travis-ci.org/sergey-telpuk/nestjs-rbac)
 [![Greenkeeper badge](https://badges.greenkeeper.io/sergey-telpuk/nestjs-rbac.svg)](https://greenkeeper.io/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sergey-telpuk/nestjs-rbac/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sergey-telpuk/nestjs-rbac/)
 [![codecov](https://codecov.io/gh/sergey-telpuk/nestjs-rbac/branch/master/graph/badge.svg)](https://codecov.io/gh/sergey-telpuk/nestjs-rbac)
 [![npm](https://img.shields.io/npm/dw/nestjs-rbac)](https://www.npmjs.com/package/nestjs-rbac)
+![RBAC CI](https://github.com/sergey-telpuk/nestjs-rbac/workflows/RBAC%20CI/badge.svg)
 ## Description
 The **rbac** module for [Nest](https://github.com/nestjs/nest).
 
@@ -10,7 +11,7 @@ The **rbac** module for [Nest](https://github.com/nestjs/nest).
 npm i --save nestjs-rbac
 
 ## Quick Start
-For using `RBAC` there is need to implement `IStorageRbac` 
+For using `RBAC` there is need to implement `IStorageRbac`
 ```typescript
 export interface IStorageRbac {
   roles: string[];
@@ -19,7 +20,7 @@ export interface IStorageRbac {
   filters: { [key: string]: any | IFilterPermission };
 }
 ```
-### For instance: 
+### For instance:
 ```typescript
 export const RBACstorage: IStorageRbac = {
   roles: ['admin', 'user'],
@@ -54,11 +55,11 @@ export const RBACstorage: IStorageRbac = {
 `grants`: objects of assigned permission to roles
 
 `filters`:  objects of customized behavior
-### Grant symbols 
+### Grant symbols
 `&`: extends grant by another grant, for instance `admin` extends `user` _(only support one level inheritance)_
 
 `@`: a particular action from permission, for instance `permission1@update`
-### Using RBAC like an unchangeable storage 
+### Using RBAC like an unchangeable storage
 ```typescript
 import { Module } from '@nestjs/common';
 import { RBAcModule } from 'nestjs-rbac';
@@ -72,7 +73,7 @@ import { RBAcModule } from 'nestjs-rbac';
 export class AppModule {}
 ```
 ### Using RBAC like a dynamic storage
-_There is enough to implement IDynamicStorageRbac interface._ 
+_There is enough to implement IDynamicStorageRbac interface._
 ```typescript
 import { Module } from '@nestjs/common';
 import { RBAcModule } from 'nestjs-rbac';
@@ -91,7 +92,7 @@ export class  DynamicStorageService implements IDynamicStorageRbac {
   constructor(
     private readonly repository: AnyRepository
   ) {
-    
+
   }
   async getRbac(): Promise<IStorageRbac> {
 //use any persistence storage for getting `RBAC`
@@ -99,7 +100,7 @@ export class  DynamicStorageService implements IDynamicStorageRbac {
   }
 }
 ```
-#### Using for routers 
+#### Using for routers
 ```typescript
 import { RBAcPermissions, RBAcGuard } from 'nestjs-rbac';
 
@@ -108,11 +109,11 @@ export class RbacTestController {
 
   @RBAcPermissions('permission', 'permission@create')
   @UseGuards(
-// Any Guard for getting & adding user to request which implements `IRole` interface from `nestjs-rbac`:  
-//*NOTE: 
+// Any Guard for getting & adding user to request which implements `IRole` interface from `nestjs-rbac`:
+//*NOTE:
 //  const request = context.switchToHttp().getRequest();
 //  const user: IRole = request.user;
-    GuardIsForAddingUserToRequestGuard, 
+    GuardIsForAddingUserToRequestGuard,
     RBAcGuard,
   )
   @Get('/')
@@ -131,7 +132,7 @@ export class RbacTestController {
   constructor(
     private readonly rbac: RbacService
   ){}
-    
+
   @Get('/')
   async test1(): Promise<boolean> {
     await this.rbac.getRole(role).can('permission', 'permission@create');
@@ -139,8 +140,8 @@ export class RbacTestController {
   }
 }
 ```
-#### Using the custom filters 
-`filter` is a great opportunity of customising behaviour RBAC. 
+#### Using the custom filters
+`filter` is a great opportunity of customising behaviour RBAC.
 For creating `filter`, there is need to implement `IFilterPermission` interface, which requires for implementing `can` method, and bind a key filter with filter implementation, like below:
 ```typescript
 export const RBAC: IStorageRbac = {
@@ -156,7 +157,7 @@ export const RBAC: IStorageRbac = {
   filters: {
     filter1: TestFilter,
   },
-};  
+};
 //===================== implementing filter
 import { IFilterPermission } from 'nestjs-rbac';
 
@@ -201,7 +202,7 @@ export const RBAC: IStorageRbac = {
   filters: {
     [RBAC_REQUEST_FILTER]: RequestFilter,
   },
-};  
+};
 //===================== using for routes
   @RBAcPermissions(`permission1@${RBAC_REQUEST_FILTER}`)
   @UseGuards(
