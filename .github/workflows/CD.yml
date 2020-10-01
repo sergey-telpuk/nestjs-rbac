@@ -3,7 +3,6 @@ on:
   push:
     tags:
       - 'v*'
-#on: [push]
 jobs:
   release:
     name: Publish Package
