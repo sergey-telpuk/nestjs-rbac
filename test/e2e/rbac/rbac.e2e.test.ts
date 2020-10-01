@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
 import { RbacTestController } from './contollers/rbac.test.controller';
-import { RBAcModule } from '../../../src/rbac.module';
+import { RBAcModule } from '../../../src';
 import { RBAC } from '../../fixtures/storage';
 
 describe('RBAC Guard', () => {
@@ -27,7 +27,7 @@ describe('RBAC Guard', () => {
 
   describe('Extends', () => {
 
-    it('Should return 200 becouse user extends userRoot',
+    it('Should return 200 because user extends userRoot',
       async () => {
         return request(app.getHttpServer())
           .get('/user-extends-userRoot')
@@ -37,7 +37,7 @@ describe('RBAC Guard', () => {
           .expect(200);
       });
 
-    it('Should return 403 becouse admin dont extends userRoot, deep extends doesnt work',
+    it('Should return 403 because admin dont extends userRoot, deep extends doesnt work',
       async () => {
         return request(app.getHttpServer())
           .get('/user-extends-userRoot')

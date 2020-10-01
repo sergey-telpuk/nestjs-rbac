@@ -24,7 +24,7 @@ export class RBAcGuard implements CanActivate {
       throw new ForbiddenException('Getting user was failed.');
     }
 
-    const permissions = this.reflector.get<string[]>('RBAcPermissions', context.getHandler());
+    const permissions = this.reflector.get<string[]>('RBAcPermissions', context.getHandler()) || this.reflector.get<string[]>('RBAcPermissions', context.getClass());
 
     if (!permissions) {
       throw new ForbiddenException('Bad permission.');
