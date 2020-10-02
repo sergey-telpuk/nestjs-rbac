@@ -128,6 +128,8 @@ It's applicable with the crud library, for example [nestjsx/crud](https://github
 ```typescript
 import { RBAcPermissions, RBAcGuard } from 'nestjs-rbac';
 
+//==========one more example
+
 @Crud({
 	model: {
 		type: Company,
@@ -141,6 +143,30 @@ import { RBAcPermissions, RBAcGuard } from 'nestjs-rbac';
 @Controller('companies')
 export class CompaniesController implements CrudController<Company> {
 	constructor(public service: CompaniesService) {}
+}
+@Crud({
+	model: {
+		type: Company,
+	},
+	routes: {
+		getManyBase: {
+			interceptors : [],
+			decorators: [RBAcPermissions('permission1')],
+		},
+		createOneBase: {
+			interceptors : [],
+			decorators: [RBAcPermissions('permission2')],
+		},
+	},
+})
+@UseGuards(
+		AuthGuard,
+		RBAcGuard,
+)
+@Controller('companies')
+export class CompaniesController implements CrudController<Company> {
+	constructor(public service: CompaniesService) {
+	}
 }
 ```
 #### Using like service
