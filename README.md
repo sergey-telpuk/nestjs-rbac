@@ -183,7 +183,7 @@ export class RbacTestController {
 
   @Get('/')
   async test1(): Promise<boolean> {
-    await this.rbac.getRole(role).can('permission', 'permission@create');
+    return await (await this.rbac.getRole(role)).can('permission', 'permission@create');
     return true;
   }
 }
@@ -216,13 +216,27 @@ export class TestFilter implements IFilterPermission {
   }
 
 }
+
+//===================== implementing async filter
+import { IFilterPermission } from 'nestjs-rbac';
+
+@Injectable()
+export class TestFilter implements IFilterPermission {
+  constructor(private readonly myService: MyService) {}
+
+  async can(params?: any[]): Promise<boolean> {
+    const myResult = await this.myService.someAsyncOperation()
+    // Do something with myResult
+    return myResult;
+  }
+}
 ```
 `ParamsFilter` services for passing arguments into particular filter:
 ```typescript
 const filter = new ParamsFilter();
 filter.setParam('filter1', some payload);
 
-const res = await rbacService.getRole('admin', filter).can(
+const res = await (await rbacService.getRole('admin', filter)).can(
   'permission1@filter1',
 );
 ```

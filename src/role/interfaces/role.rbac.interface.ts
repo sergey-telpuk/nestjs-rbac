@@ -1,3 +1,3 @@
 export interface IRoleRbac {
-  can(...permissions: string[]): boolean;
+  can(...permissions: string[]): Promise<boolean>;
 }

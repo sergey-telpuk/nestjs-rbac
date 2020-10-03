@@ -30,19 +30,19 @@ describe('RBAC service', () => {
 
     it('Should return true because admin has permissions for permission1@create',
       async () => {
-        const res = (await rbacService.getRole('admin')).can('permission1@create');
+        const res = await (await rbacService.getRole('admin')).can('permission1@create');
         expect(res).toBe(true);
       });
 
     it('Should return false because user hasn\'t permissions for permission1@update',
       async () => {
-        const res = (await rbacService.getRole('user')).can('permission1@update');
+        const res = await (await rbacService.getRole('user')).can('permission1@update');
         expect(res).toBe(false);
       });
 
     it('Should return true because user has permissions for permission1@create',
       async () => {
-        const res = (await rbacService.getRole('user')).can('permission1@create');
+        const res = await (await rbacService.getRole('user')).can('permission1@create');
         expect(res).toBe(true);
       });
 
@@ -52,19 +52,19 @@ describe('RBAC service', () => {
 
     it('Should return true because admin extends user',
       async () => {
-        const res = (await rbacService.getRole('admin')).can('permission2@update');
+        const res = await (await rbacService.getRole('admin')).can('permission2@update');
         expect(res).toBe(true);
       });
 
     it('Should return true because user extends userRoot',
       async () => {
-        const res = (await rbacService.getRole('user')).can('permission4@create');
+        const res = await (await rbacService.getRole('user')).can('permission4@create');
         expect(res).toBe(true);
       });
 
     it('Should return false because deep extends dont work',
       async () => {
-        const res = (await rbacService.getRole('admin')).can('permission4@create');
+        const res = await (await rbacService.getRole('admin')).can('permission4@create');
         expect(res).toBe(false);
       });
 
@@ -76,7 +76,7 @@ describe('RBAC service', () => {
       async () => {
         const filter = new ParamsFilter();
         filter.setParam('filter1', true);
-        const res = (await rbacService.getRole('admin', filter)).can(
+        const res = await (await rbacService.getRole('admin', filter)).can(
           'permission3@filter1',
         );
         expect(res).toBe(true);
@@ -89,7 +89,7 @@ describe('RBAC service', () => {
         filter
           .setParam('filter1', true)
           .setParam('filter2', false);
-        const res = (await rbacService.getRole('admin', filter)).can(
+        const res = await (await rbacService.getRole('admin', filter)).can(
           'permission3@filter2',
           'permission3@filter1',
         );
@@ -103,7 +103,7 @@ describe('RBAC service', () => {
           .setParam('filter2', true)
           .setParam('filter3', true);
 
-        const res = (await rbacService.getRole('admin', filter)).can(
+        const res = await (await rbacService.getRole('admin', filter)).can(
           'permission3@filter2',
           'permission3@filter1',
           'permission3@filter3',
