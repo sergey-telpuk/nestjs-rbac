@@ -14,14 +14,22 @@ export class RoleRbac implements IRoleRbac {
   ) {
   }
 
-  async can(...permissions: string[]): Promise<boolean> {
+  async canAsync(...permissions: string[]): Promise<boolean> {
+    return this.checkPermissions<Promise<boolean>>(permissions, 'canAsync');
+  }
+
+  can(...permissions: string[]): boolean {
+    return this.checkPermissions<boolean>(permissions, 'can');
+  }
+
+  private checkPermissions<T>(permissions, methodName): T {
     if (!permissions.length) {
-      return false;
+      return (<any>false);
     }
     // check grant
     for (const permission of permissions) {
       if (!this.grant.includes(permission)) {
-        return false;
+        return (<any>false);
       }
     }
 
@@ -34,14 +42,10 @@ export class RoleRbac implements IRoleRbac {
       ) {
         const filter: string = permission.split('@')[1];
         const filterService: IFilterPermission = this.filters[filter];
-        const isGranted = filterService ? await Promise.resolve(
-          filterService.can(
+        if (filterService) {
+          return filterService?.[methodName]?.(
             this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
-          )
-        ) : false;
-
-        if (filterService && !isGranted) {
-          return false;
+          ) ?? true
         }
       }
       // check particular permission [permission]
@@ -53,19 +57,14 @@ export class RoleRbac implements IRoleRbac {
             this.filters.hasOwnProperty(filter) &&
             this.grant.includes(`${permission}@${filter}`)
           ) {
-            const isGranted = await Promise.resolve(
-              this.filters[filter].can(
-                this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
-              )
-            );
-            if (!isGranted) {
-              return false;
-            }
+            return this.filters[filter]?.[methodName]?.(
+              this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
+            ) ?? true
           }
         }
       }
     }
 
-    return true;
+    return (<any>true);
   }
 }
