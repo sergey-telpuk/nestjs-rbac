@@ -14,14 +14,22 @@ export class RoleRbac implements IRoleRbac {
   ) {
   }
 
+  async canAsync(...permissions: string[]): Promise<boolean> {
+    return this.checkPermissions<Promise<boolean>>(permissions, 'canAsync');
+  }
+
   can(...permissions: string[]): boolean {
+    return this.checkPermissions<boolean>(permissions, 'can');
+  }
+
+  private checkPermissions<T>(permissions, methodName): T {
     if (!permissions.length) {
-      return false;
+      return (<any>false);
     }
     // check grant
     for (const permission of permissions) {
       if (!this.grant.includes(permission)) {
-        return false;
+        return (<any>false);
       }
     }
 
@@ -34,13 +42,10 @@ export class RoleRbac implements IRoleRbac {
       ) {
         const filter: string = permission.split('@')[1];
         const filterService: IFilterPermission = this.filters[filter];
-
-        if (
-          filterService && !filterService.can(
-          this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
-          )
-        ) {
-          return false;
+        if (filterService) {
+          return filterService?.[methodName]?.(
+            this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
+          ) ?? true
         }
       }
       // check particular permission [permission]
@@ -52,18 +57,14 @@ export class RoleRbac implements IRoleRbac {
             this.filters.hasOwnProperty(filter) &&
             this.grant.includes(`${permission}@${filter}`)
           ) {
-            if (
-              !this.filters[filter].can(
-                this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
-              )
-            ) {
-              return false;
-            }
+            return this.filters[filter]?.[methodName]?.(
+              this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
+            ) ?? true
           }
         }
       }
     }
 
-    return true;
+    return (<any>true);
   }
 }
