@@ -8,9 +8,9 @@
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "lint:fix": "tslint -p tsconfig.json -c tslint.json --fix",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:watch": "jest --watch  --config ./test/jest.json",
+    "test:cov": "jest --coverage --config ./test/jest.json",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand --config ./test/jest.json",
     "test:e2e": "jest  --verbose  --config ./test/e2e/jest-e2e.json",
     "test:int": "jest  --verbose --config ./test/int/jest-int.json",
     "test": "jest --verbose --config ./test/jest.json"
@@ -41,17 +41,17 @@
     "@types/supertest": "2.0.8",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
-    "jest": "24.9.0",
+    "jest": "26.6.1",
     "prettier": "1.18.2",
     "sqlite3": "^5.0.0",
     "supertest": "4.0.2",
-    "ts-jest": "25.1.0",
+    "ts-jest": "26.4.2",
     "ts-node": "8.5.0",
     "tsc-watch": "3.0.2",
     "tsconfig-paths": "3.9.0",
     "tslint": "5.20.0",
     "typeorm": "^0.2.28",
-    "typescript": "3.6.3"
+    "typescript": "4.0.3"
   },
   "jest": {
     "moduleFileExtensions": [
