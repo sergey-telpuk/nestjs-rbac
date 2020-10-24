@@ -195,15 +195,17 @@ For creating `filter`, there is need to implement `IFilterPermission` interface,
 export const RBAC: IStorageRbac = {
   roles: ['role'],
   permissions: {
-    permission1: ['filter1'],
+    permission1: ['filter1', 'filter2'],
   },
   grants: {
     role: [
       `permission1@filter1`
+      `permission1@filter2`
     ],
   },
   filters: {
     filter1: TestFilter,
+    filter2: TestAsyncFilter,
   },
 };
 //===================== implementing filter
@@ -221,16 +223,18 @@ export class TestFilter implements IFilterPermission {
 import { IFilterPermission } from 'nestjs-rbac';
 
 @Injectable()
-export class TestFilter implements IFilterPermission {
+export class TestAsyncFilter implements IFilterPermission {
   constructor(private readonly myService: MyService) {}
 
-  async can(params?: any[]): Promise<boolean> {
+  async canAsync(params?: any[]): Promise<boolean> {
     const myResult = await this.myService.someAsyncOperation()
     // Do something with myResult
     return myResult;
   }
 }
 ```
+:warning: - A single filter can implement both `can` and `canAsync`. If you use the RBAcGuard, they will be evaluated with an **AND** condition.
+
 `ParamsFilter` services for passing arguments into particular filter:
 ```typescript
 const filter = new ParamsFilter();
