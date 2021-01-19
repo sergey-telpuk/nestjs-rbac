@@ -24,12 +24,12 @@ export class RoleRbac implements IRoleRbac {
 
   private checkPermissions<T>(permissions, methodName): T {
     if (!permissions.length) {
-      return (<any>false);
+      return (false as any);
     }
     // check grant
     for (const permission of permissions) {
       if (!this.grant.includes(permission)) {
-        return (<any>false);
+        return (false as any);
       }
     }
 
@@ -45,7 +45,7 @@ export class RoleRbac implements IRoleRbac {
         if (filterService) {
           return filterService?.[methodName]?.(
             this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
-          ) ?? true
+          ) ?? true;
         }
       }
       // check particular permission [permission]
@@ -59,12 +59,12 @@ export class RoleRbac implements IRoleRbac {
           ) {
             return this.filters[filter]?.[methodName]?.(
               this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
-            ) ?? true
+            ) ?? true;
           }
         }
       }
     }
 
-    return (<any>true);
+    return (true as any);
   }
 }
