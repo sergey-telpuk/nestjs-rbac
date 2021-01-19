@@ -109,6 +109,14 @@ describe('RBAC Guard', () => {
         .expect(403);
     });
 
+    it('Should return 200 because user have `permission4`', async () => {
+      return request(app.getHttpServer())
+        .get('/admin-permission4')
+        .set('Role', 'user')
+        .send()
+        .expect(200);
+    });
+
     it('Should return 200 because user has permission1@create', async () => {
       return request(app.getHttpServer())
         .get('/user-permission1@create')
