@@ -57,16 +57,6 @@ export class RbacTestController {
     return true;
   }
 
-  @RBAcPermissions(`permission4`)
-  @UseGuards(
-    AuthGuard,
-    RBAcGuard,
-  )
-  @Get('/admin-extends-userRoot')
-  async test6(): Promise<boolean> {
-    return true;
-  }
-
   @RBAcPermissions(`permission1@create`)
   @UseGuards(
     AuthGuard,

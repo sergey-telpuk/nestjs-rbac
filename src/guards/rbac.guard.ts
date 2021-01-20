@@ -33,10 +33,10 @@ export class RBAcGuard implements CanActivate {
     try {
       const filter = new ParamsFilter();
       filter.setParam(RBAC_REQUEST_FILTER, { ...request });
-      const role = await this.rbacService.getRole(user.role, filter)
+      const role = await this.rbacService.getRole(user.role, filter);
       const can = role.can(...permissions);
       const canAsync = await role.canAsync(...permissions);
-      return can && canAsync
+      return can && canAsync;
     } catch (e) {
       throw new ForbiddenException(e.message);
     }
