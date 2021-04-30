@@ -20,7 +20,7 @@ export class RoleRbac implements IRoleRbac {
     return this.checkPermissions<boolean>(permissions, 'can')
   }
 
-  any (permissions: string[][]): boolean {
+  any (...permissions: string[][]): boolean {
     // loop through the list of permission list
     return (
       permissions
@@ -33,7 +33,7 @@ export class RoleRbac implements IRoleRbac {
     )
   }
 
-  async anyAsync (permissions: string[][]): Promise<boolean> {
+  async anyAsync (...permissions: string[][]): Promise<boolean> {
     return (
       await Promise.all(
         permissions.map(async permission => {
