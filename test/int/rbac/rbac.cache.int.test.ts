@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { RBAcModule } from '../../../src/rbac.module';
+import { RbacModule } from '../../../src/rbac.module';
 import { RbacService } from '../../../src/services/rbac.service';
 import { Test } from '@nestjs/testing';
 import { RBAC } from '../../fixtures/storage';
@@ -16,7 +16,7 @@ describe('Rbac Cache', () => {
     const moduleFixture = await Test.createTestingModule(
       {
         imports: [
-          RBAcModule.useCache(RbacCache, {KEY: 'RBAC'}).forRoot(RBAC),
+          RbacModule.useCache(RbacCache, {KEY: 'RBAC'}).forRoot(RBAC),
         ],
         controllers: [],
       },

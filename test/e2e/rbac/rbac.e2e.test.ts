@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
 import { RbacTestController } from './contollers/rbac.test.controller';
-import { RBAcModule } from '../../../src';
+import { RbacModule } from '../../../src';
 import { RBAC } from '../../fixtures/storage';
 
 describe('RBAC Guard', () => {
@@ -12,7 +12,7 @@ describe('RBAC Guard', () => {
     const moduleFixture = await Test.createTestingModule(
       {
         imports: [
-          RBAcModule.forRoot(RBAC),
+          RbacModule.forRoot(RBAC),
         ],
         controllers: [
           RbacTestController,

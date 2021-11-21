@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { RBAcModule } from '../../../src/rbac.module';
+import { RbacModule } from '../../../src/rbac.module';
 import { RbacService } from '../../../src/services/rbac.service';
 import { Test } from '@nestjs/testing';
 import { RBAC } from '../../fixtures/storage';
@@ -14,7 +14,7 @@ describe('RBAC service', () => {
     const moduleFixture = await Test.createTestingModule(
       {
         imports: [
-          RBAcModule.forRoot(RBAC),
+          RbacModule.forRoot(RBAC),
         ],
         controllers: [],
       },

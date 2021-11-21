@@ -19,7 +19,7 @@ import { StorageRbacService } from './services/storage.rbac.service';
   imports: [],
   exports: [RbacService]
 })
-export class RBAcModule {
+export class RbacModule {
   private static cache?: any | ICacheRBAC;
   private static cacheOptions?: { KEY?: string; TTL?: number };
 
@@ -30,9 +30,9 @@ export class RBAcModule {
       TTL?: number;
     }
   ) {
-    RBAcModule.cache = cache;
-    RBAcModule.cacheOptions = options;
-    return RBAcModule;
+    RbacModule.cache = cache;
+    RbacModule.cacheOptions = options;
+    return RbacModule;
   }
 
   static forRoot(
@@ -40,7 +40,7 @@ export class RBAcModule {
     providers?: any[],
     imports?: any[]
   ): DynamicModule {
-    return RBAcModule.forDynamic(
+    return RbacModule.forDynamic(
       class {
         async getRbac(): Promise<IStorageRbac> {
           return rbac;
@@ -58,15 +58,15 @@ export class RBAcModule {
   ): DynamicModule {
     const inject = [ModuleRef, rbac];
     const commonProviders: Provider<any>[] = [];
-    if (RBAcModule.cache) {
-      commonProviders.push(RBAcModule.cache, {
+    if (RbacModule.cache) {
+      commonProviders.push(RbacModule.cache, {
         provide: 'ICacheRBAC',
         useFactory: (cache: ICacheRBAC): ICacheRBAC => {
-          return RBAcModule.setCacheOptions(cache);
+          return RbacModule.setCacheOptions(cache);
         },
-        inject: [RBAcModule.cache]
+        inject: [RbacModule.cache]
       });
-      inject.push(RBAcModule.cache);
+      inject.push(RbacModule.cache);
     }
 
     const storageRbacService: FactoryProvider = {
@@ -79,7 +79,7 @@ export class RBAcModule {
         return new StorageRbacService(
           moduleRef,
           rbacService,
-          RBAcModule.setCacheOptions(cache)
+          RbacModule.setCacheOptions(cache)
         );
       },
       inject
@@ -88,25 +88,25 @@ export class RBAcModule {
     commonProviders.push(...[...(providers || []), rbac], storageRbacService);
 
     return {
-      module: RBAcModule,
+      module: RbacModule,
       providers: commonProviders,
       imports: [...(imports || [])]
     };
   }
 
   private static setCacheOptions(cache?: ICacheRBAC) {
-    if (!cache || RBAcModule.cacheOptions) {
+    if (!cache || RbacModule.cacheOptions) {
       return cache;
     }
-    if (!RBAcModule.cacheOptions) {
+    if (!RbacModule.cacheOptions) {
       return cache;
     }
-    if (RBAcModule.cacheOptions.KEY) {
-      cache.KEY = RBAcModule.cacheOptions.KEY;
+    if (RbacModule.cacheOptions.KEY) {
+      cache.KEY = RbacModule.cacheOptions.KEY;
     }
 
-    if (RBAcModule.cacheOptions.TTL) {
-      cache.TTL = RBAcModule.cacheOptions.TTL;
+    if (RbacModule.cacheOptions.TTL) {
+      cache.TTL = RbacModule.cacheOptions.TTL;
     }
 
     return cache;

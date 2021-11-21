@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { RBAcModule } from '../../../src/rbac.module';
+import { RbacModule } from '../../../src/rbac.module';
 import { RbacService } from '../../../src/services/rbac.service';
 import { Test } from '@nestjs/testing';
 import { ParamsFilter } from '../../../src/params-filter/params.filter';
@@ -16,7 +16,7 @@ describe('RBAC async service', () => {
     const moduleFixture = await Test.createTestingModule(
       {
         imports: [
-          RBAcModule
+          RbacModule
             .useCache(RbacCache, {KEY: 'RBAC', TTL: 400})
             .forDynamic(AsyncService),
         ],

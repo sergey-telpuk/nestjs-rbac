@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
 import { RBAC } from '../../../fixtures/storage';
-import { RBAcModule } from '../../../../src';
+import { RbacModule } from '../../../../src';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CompaniesController, CompaniesService, Company } from './company';
 
@@ -22,7 +22,7 @@ describe('RBAC Guard', () => {
 						entities: [Company],
 					}),
 					TypeOrmModule.forFeature([Company]),
-					RBAcModule.forRoot(RBAC),
+					RbacModule.forRoot(RBAC),
 				],
 				providers: [CompaniesService],
 				exports: [CompaniesService],
