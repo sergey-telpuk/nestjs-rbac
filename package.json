@@ -5,6 +5,7 @@
   "author": "Sergey Telpuk",
   "license": "MIT",
   "scripts": {
+    "prepare": "npm run build",
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "lint:fix": "tslint -p tsconfig.json -c tslint.json --fix",
