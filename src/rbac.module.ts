@@ -41,6 +41,7 @@ export class RbacModule {
     imports?: any[]
   ): DynamicModule {
     return RbacModule.forDynamic(
+      /* tslint:disable */
       class {
         async getRbac(): Promise<IStorageRbac> {
           return rbac;
