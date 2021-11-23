@@ -148,21 +148,21 @@ describe('RBAC service', () => {
     });
 
     describe('Async', () => {
-      it('Should return true because admin has the custom filter permission5@asyncFilter1', async () => {
+      it('Should return true because admin has the custom filter permission5@ASYNC_filter1', async () => {
         const filter = new ParamsFilter();
-        filter.setParam('asyncFilter1', true);
+        filter.setParam('ASYNC_filter1', true);
         const res = await (await rbacService.getRole('admin', filter)).canAsync(
-          'permission5@asyncFilter1',
+          'permission5@ASYNC_filter1',
         );
         expect(res).toBe(true);
       });
 
-      it('Should return true because admin has at least 1 custom filter permission5@asyncFilter1', async () => {
+      it('Should return true because admin has at least 1 custom filter permission5@ASYNC_filter1', async () => {
         const filter = new ParamsFilter();
-        filter.setParam('asyncFilter1', true).setParam('asyncFilter2', false);
+        filter.setParam('ASYNC_filter1', true).setParam('ASYNC_filter2', false);
         const res = await (await rbacService.getRole('admin', filter)).anyAsync(
-          ['permission5@asyncFilter1'],
-          ['permission5@asyncFilter2'],
+          ['permission5@ASYNC_filter1'],
+          ['permission5@ASYNC_filter2'],
         );
         expect(res).toBe(true);
       });
@@ -172,20 +172,20 @@ describe('RBAC service', () => {
           'permission3@filter1 permission3@filter1',
         async () => {
           const filter = new ParamsFilter();
-          filter.setParam('asyncFilter1', true).setParam('asyncFilter2', false);
+          filter.setParam('ASYNC_filter1', true).setParam('ASYNC_filter2', false);
           const res = await (
             await rbacService.getRole('admin', filter)
-          ).canAsync('permission5@asyncFilter2', 'permission5@asyncFilter1');
+          ).canAsync('permission5@ASYNC_filter2', 'permission5@ASYNC_filter1');
           expect(res).toBe(false);
         },
       );
 
       it('Should return false because admin has neither of the custom permission', async () => {
         const filter = new ParamsFilter();
-        filter.setParam('asyncFilter1', false).setParam('asyncFilter2', false);
+        filter.setParam('ASYNC_filter1', false).setParam('ASYNC_filter2', false);
         const res = await (await rbacService.getRole('admin', filter)).anyAsync(
-          ['permission5@asyncFilter2'],
-          ['permission5@asyncFilter1'],
+          ['permission5@ASYNC_filter2'],
+          ['permission5@ASYNC_filter1'],
         );
         expect(res).toBe(false);
       });
@@ -193,13 +193,13 @@ describe('RBAC service', () => {
       it('Should return false because admin has the custom asyncFilter3 doesnt exist', async () => {
         const filter = new ParamsFilter();
         filter
-          .setParam('asyncFilter1', true)
-          .setParam('asyncFilter2', true)
+          .setParam('ASYNC_filter1', true)
+          .setParam('ASYNC_filter2', true)
           .setParam('asyncFilter3', true);
 
         const res = (await rbacService.getRole('admin', filter)).can(
-          'permission5@asyncFilter2',
-          'permission5@asyncFilter1',
+          'permission5@ASYNC_filter2',
+          'permission5@ASYNC_filter1',
           'permission5@asyncFilter3',
         );
 

@@ -1,11 +1,11 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
-import { RbacTestController } from './contollers/rbac.test.controller';
 import { RBAcModule } from '../../../src';
 import { RBAC } from '../../fixtures/storage';
+import { RbacAsyncTestController } from './contollers/rbac.async.test.controller';
 
-describe('RBAC Guard', () => {
+describe('RBAC Async Guard', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -15,7 +15,7 @@ describe('RBAC Guard', () => {
           RBAcModule.forRoot(RBAC),
         ],
         controllers: [
-          RbacTestController,
+          RbacAsyncTestController,
         ],
       },
     ).compile();
@@ -143,10 +143,10 @@ describe('RBAC Guard', () => {
 
     it('Should return 200 because user have permission1@delete but not permission1@create', async () => {
       return request(app.getHttpServer())
-        .get('/user-permission1@deleteOrCreate')
-        .set('Role', 'user')
-        .send()
-        .expect(200);
+          .get('/user-permission1@deleteOrCreate')
+          .set('Role', 'user')
+          .send()
+          .expect(200);
     });
 
   });

@@ -1,14 +1,9 @@
 export interface ICacheRBAC {
-  KEY: string;
-  TTL: number;
+    KEY: string;
+    TTL: number;
 
-  get(): object | null;
+    get(): object | null;
+    set(value: object): void;
 
-  /**
-   *
-   * @param value
-   */
-  set(value: object): void;
-
-  del(): void;
+    del(): void;
 }
