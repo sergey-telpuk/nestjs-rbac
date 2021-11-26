@@ -1,13 +1,13 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { RBAcGuard } from '../../../../src/guards/rbac.guard';
-import { RBAcPermissions, RBAcAnyPermissions } from '../../../../src/decorators/rbac.permissions.decorator';
+import {RBAcAnyPermissions, RBAcAsyncPermissions, RBAcAnyAsyncPermissions} from '../../../../src/decorators/rbac.permissions.decorator';
 import { AuthGuard } from '../guards/auth.guard';
-import { RBAC_REQUEST_FILTER } from '../../../../src/constans';
+import { ASYNC_RBAC_REQUEST_FILTER } from '../../../../src/constans';
 
 @Controller()
-export class RbacTestController {
+export class RbacAsyncTestController {
 
-  @RBAcPermissions('permission1')
+  @RBAcAsyncPermissions('permission1')
   @UseGuards(
     AuthGuard,
     RBAcGuard,
@@ -17,7 +17,7 @@ export class RbacTestController {
     return true;
   }
 
-  @RBAcPermissions('permission2', 'permission1')
+  @RBAcAsyncPermissions('permission2', 'permission1')
   @UseGuards(
     AuthGuard,
     RBAcGuard,
@@ -27,7 +27,7 @@ export class RbacTestController {
     return true;
   }
 
-  @RBAcPermissions('permission4')
+  @RBAcAsyncPermissions('permission4')
   @UseGuards(
     AuthGuard,
     RBAcGuard,
@@ -37,7 +37,7 @@ export class RbacTestController {
     return true;
   }
 
-  @RBAcPermissions(`permission3@${RBAC_REQUEST_FILTER}`)
+  @RBAcAsyncPermissions(`permission5@${ASYNC_RBAC_REQUEST_FILTER}`)
   @UseGuards(
     AuthGuard,
     RBAcGuard,
@@ -47,7 +47,7 @@ export class RbacTestController {
     return true;
   }
 
-  @RBAcPermissions(`permission4`)
+  @RBAcAsyncPermissions(`permission4`)
   @UseGuards(
     AuthGuard,
     RBAcGuard,
@@ -57,7 +57,7 @@ export class RbacTestController {
     return true;
   }
 
-  @RBAcPermissions(`permission1@create`)
+  @RBAcAsyncPermissions(`permission1@create`)
   @UseGuards(
     AuthGuard,
     RBAcGuard,
@@ -67,7 +67,7 @@ export class RbacTestController {
     return true;
   }
 
-  @RBAcPermissions(`permission1@delete`)
+  @RBAcAsyncPermissions(`permission1@delete`)
   @UseGuards(
     AuthGuard,
     RBAcGuard,
@@ -77,7 +77,7 @@ export class RbacTestController {
     return true;
   }
 
-  @RBAcAnyPermissions(
+  @RBAcAnyAsyncPermissions(
       [`permission1@delete`],
       [`permission1@create`]
   )
@@ -89,5 +89,4 @@ export class RbacTestController {
   async test9(): Promise<boolean> {
     return true;
   }
-
 }

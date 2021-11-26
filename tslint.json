@@ -5,6 +5,7 @@
   ],
   "jsRules": {},
   "rules": {
+    "indent": [true, "spaces"],
     "quotemark": [
       true,
       "single",

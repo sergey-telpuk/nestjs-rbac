@@ -9,22 +9,22 @@ import { IParamsFilter } from '../params-filter/interfaces/params.filter.interfa
 @Injectable()
 export class RbacService implements IRbac {
 
-  constructor(
-    private readonly  storageRbacService: StorageRbacService,
-  ) {
-  }
-
-  async getRole(role: string, paramsFilter?: IParamsFilter): Promise<IRoleRbac> {
-    const storage = await this.storageRbacService.getStorage();
-    if (!storage.roles || !storage.roles.includes(role)) {
-      throw new RbacExceptions('There is no exist a role.');
+    constructor(
+        private readonly storageRbacService: StorageRbacService,
+    ) {
     }
 
-    return new RoleRbac(
-      role,
-      await this.storageRbacService.getGrant(role),
-      await this.storageRbacService.getFilters(),
-      paramsFilter,
-    );
-  }
+    async getRole(role: string, paramsFilter?: IParamsFilter): Promise<IRoleRbac> {
+        const storage = await this.storageRbacService.getStorage();
+        if (!storage.roles || !storage.roles.includes(role)) {
+            throw new RbacExceptions('There is no exist a role.');
+        }
+
+        return new RoleRbac(
+            role,
+            await this.storageRbacService.getGrant(role),
+            await this.storageRbacService.getFilters(),
+            paramsFilter,
+        );
+    }
 }

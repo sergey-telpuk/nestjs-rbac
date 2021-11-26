@@ -21,27 +21,34 @@ export interface IStorageRbac {
 ```
 ### For instance:
 ```typescript
-export const RBACstorage: IStorageRbac = {
-  roles: ['admin', 'user'],
-  permissions: {
-    permission1: ['create', 'update', 'delete'],
-    permission2: ['create', 'update', 'delete'],
-    permission3: ['filter1', 'filter2', RBAC_REQUEST_FILTER],
-    permission4: ['create', 'update', 'delete'],
-  },
-  grants: {
-    admin: [
-      '&user',
-      'permission1',
-      'permission3',
-    ],
-    user: ['permission2', 'permission1@create', 'permission3@filter1'],
-  },
-  filters: {
-    filter1: TestFilterOne,
-    filter2: TestFilterTwo,
-    [RBAC_REQUEST_FILTER]: RequestFilter,
-  },
+export const RBAC: IStorageRbac = {
+    roles: ['admin', 'user'],
+    permissions: {
+        permission1: ['create', 'update', 'delete'],
+        permission2: ['create', 'update', 'delete'],
+        permission3: ['filter1', 'filter2', RBAC_REQUEST_FILTER],
+        permission4: ['create', 'update', 'delete'],
+        permission5: ['ASYNC_filter1', 'ASYNC_filter2', ASYNC_RBAC_REQUEST_FILTER],
+    },
+    grants: {
+        admin: [
+            '&user',
+            'permission1',
+            'permission3',
+            'permission5',
+        ],
+        user: ['&userRoot', 'permission2', 'permission1@create', 'permission3@filter1', 'permission5@ASYNC_filter1'],
+        userRoot: ['permission4'],
+
+    },
+    filters: {
+        filter1: TestFilterOne,
+        filter2: TestFilterTwo,
+        ASYNC_filter1: TestAsyncFilterOne,
+        ASYNC_filter2: TestAsyncFilterTwo,
+        [RBAC_REQUEST_FILTER]: RequestFilter,
+        [ASYNC_RBAC_REQUEST_FILTER]: RequestAsyncFilter,
+    },
 };
 ```
 
@@ -54,6 +61,8 @@ export const RBACstorage: IStorageRbac = {
 `grants`: objects of assigned permission to roles
 
 `filters`:  objects of customized behavior
+
+prefix `ASYNC_` use for async operations
 ### Grant symbols
 `&`: extends grant by another grant, for instance `admin` extends `user` _(only support one level inheritance)_
 
@@ -99,28 +108,218 @@ export class  DynamicStorageService implements IDynamicStorageRbac {
   }
 }
 ```
-#### Using for routers
+#### Using for routers RBAcPermissions
+
 ```typescript
-import { RBAcPermissions, RBAcGuard } from 'nestjs-rbac';
+import {RBAcPermissions, RBAcGuard} from 'nestjs-rbac';
+import {RBAcAsyncPermissions} from "./rbac.permissions.decorator";
 
 @Controller()
 export class RbacTestController {
 
-  @RBAcPermissions('permission', 'permission@create')
-  @UseGuards(
+    @RBAcPermissions('permission', 'permission@create')
+    @UseGuards(
 // Any Guard for getting & adding user to request which implements `IRole` interface from `nestjs-rbac`:
 //*NOTE:
 //  const request = context.switchToHttp().getRequest();
 //  const user: IRole = request.user;
-    GuardIsForAddingUserToRequestGuard,
-    RBAcGuard,
-  )
-  @Get('/')
-  async test1(): Promise<boolean> {
-    return true;
-  }
+        GuardIsForAddingUserToRequestGuard,
+        RBAcGuard,
+    )
+    @Get('/')
+    async test1(): Promise<boolean> {
+        return true;
+    }
 }
+
+// example Async 
+@Controller()
+export class RbacAsyncTestController {
+
+    @RBAcAsyncPermissions('permission1')
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/admin-permission1')
+    async test1(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcAsyncPermissions('permission2', 'permission1')
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/admin-permission1-and-permission2')
+    async test2(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcAsyncPermissions('permission4')
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/admin-permission4')
+    async test3(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcAsyncPermissions(`permission5@${ASYNC_RBAC_REQUEST_FILTER}`)
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/admin-request-filter')
+    async test4(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcAsyncPermissions(`permission4`)
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/user-extends-userRoot')
+    async test5(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcAsyncPermissions(`permission1@create`)
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/user-permission1@create')
+    async test7(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcAsyncPermissions(`permission1@delete`)
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/user-permission1@delete')
+    async test8(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcAnyAsyncPermissions(
+        [`permission1@delete`],
+        [`permission1@create`]
+    )
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/user-permission1@deleteOrCreate')
+    async test9(): Promise<boolean> {
+        return true;
+    }
+}
+
+// example 
+export class RbacTestController {
+
+    @RBAcPermissions('permission1')
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/admin-permission1')
+    async test1(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcPermissions('permission2', 'permission1')
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/admin-permission1-and-permission2')
+    async test2(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcPermissions('permission4')
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/admin-permission4')
+    async test3(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcPermissions(`permission3@${RBAC_REQUEST_FILTER}`)
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/admin-request-filter')
+    async test4(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcPermissions(`permission4`)
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/user-extends-userRoot')
+    async test5(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcPermissions(`permission1@create`)
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/user-permission1@create')
+    async test7(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcPermissions(`permission1@delete`)
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/user-permission1@delete')
+    async test8(): Promise<boolean> {
+        return true;
+    }
+
+    @RBAcAnyPermissions(
+        [`permission1@delete`],
+        [`permission1@create`]
+    )
+    @UseGuards(
+        AuthGuard,
+        RBAcGuard,
+    )
+    @Get('/user-permission1@deleteOrCreate')
+    async test9(): Promise<boolean> {
+        return true;
+    }
+
+
 ```
+### Variaty of decorators
+`@RBAcPermissions`: obtain 'permission', 'permission@create'
+
+`@RBAcAnyPermissions`: obtain 'permission', 'permission@create' and async filter
+
+`@RBAcAsyncPermissions`: obtain ['permission'], ['permission@create']
+
+`@RBAcAnyAsyncPermissions` obtain ['permission'], ['permission@create'] and async filter
+
+#### Async filter
+For using async filter add `ASYNC_` 
+
 #### Using for a whole controller
 It's applicable with the crud library, for example [nestjsx/crud](https://github.com/nestjsx/crud)
 ```typescript

@@ -3,5 +3,5 @@ import { IParamsFilter } from '../../params-filter/interfaces/params.filter.inte
 
 export interface IRbac {
 
-  getRole(role: string, builderFilter?: IParamsFilter): Promise<IRoleRbac>;
+    getRole(role: string, builderFilter?: IParamsFilter): Promise<IRoleRbac>;
 }
