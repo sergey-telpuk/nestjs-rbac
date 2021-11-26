@@ -1,10 +1,11 @@
+[![npm version](https://badge.fury.io/js/nestjs-rbac.svg)](https://badge.fury.io/js/nestjs-rbac)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sergey-telpuk/nestjs-rbac/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sergey-telpuk/nestjs-rbac/)
 [![codecov](https://codecov.io/gh/sergey-telpuk/nestjs-rbac/branch/master/graph/badge.svg)](https://codecov.io/gh/sergey-telpuk/nestjs-rbac)
 [![npm](https://img.shields.io/npm/dw/nestjs-rbac)](https://www.npmjs.com/package/nestjs-rbac)
 ![RBAC CI](https://github.com/sergey-telpuk/nestjs-rbac/workflows/RBAC%20CI/badge.svg)
 ![RBAC CD](https://github.com/sergey-telpuk/nestjs-rbac/workflows/RBAC%20CD/badge.svg)
 ## Description
-The **rbac** module for [Nest](https://github.com/nestjs/nest).
+The **rbac** module for [Nest](https://github.com/nestjs/nest). Support NestJS 8 || 7
 
 ## Installation
 npm i --save nestjs-rbac
@@ -308,7 +309,8 @@ export class RbacTestController {
 
 
 ```
-### Variaty of decorators
+### Variety of the decorators
+
 `@RBAcPermissions`: obtain 'permission', 'permission@create'
 
 `@RBAcAnyPermissions`: obtain 'permission', 'permission@create' and async filter
