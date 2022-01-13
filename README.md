@@ -313,7 +313,7 @@ export class RbacTestController {
 
 `@RBAcPermissions`: obtain 'permission', 'permission@create'
 
-`@RBAcAnyPermissions`: obtain 'permission', 'permission@create' and async filter
+`@RBAcAnyPermissions`: obtain 'permission', 'permission@create'
 
 `@RBAcAsyncPermissions`: obtain ['permission'], ['permission@create']
 
