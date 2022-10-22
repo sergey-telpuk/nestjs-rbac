@@ -4,6 +4,8 @@
 [![npm](https://img.shields.io/npm/dw/nestjs-rbac)](https://www.npmjs.com/package/nestjs-rbac)
 ![RBAC CI](https://github.com/sergey-telpuk/nestjs-rbac/workflows/RBAC%20CI/badge.svg)
 ![RBAC CD](https://github.com/sergey-telpuk/nestjs-rbac/workflows/RBAC%20CD/badge.svg)
+
+# Join our discord server: [Link](https://discord.gg/Gu3KxPJNg3)
 ## Description
 The **rbac** module for [Nest](https://github.com/nestjs/nest). Support NestJS 8 || 7
 
