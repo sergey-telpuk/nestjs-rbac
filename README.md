@@ -7,7 +7,7 @@
 
 # Join our discord server: [Link](https://discord.gg/Gu3KxPJNg3)
 ## Description
-The **rbac** module for [Nest](https://github.com/nestjs/nest). Support NestJS 8 || 7
+The **rbac** module for [Nest](https://github.com/nestjs/nest). Support NestJS 8 || 7 || 9
 
 ## Installation
 npm i --save nestjs-rbac
