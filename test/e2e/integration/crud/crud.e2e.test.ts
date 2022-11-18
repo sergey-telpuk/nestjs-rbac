@@ -15,8 +15,7 @@ describe('RBAC Guard', () => {
 			{
 				imports: [
 					TypeOrmModule.forRoot({
-						type: 'sqlite',
-						database: __dirname + '/database.sqlite',
+						type: 'sqljs',
 						synchronize: true,
 						logging: false,
 						entities: [Company],
