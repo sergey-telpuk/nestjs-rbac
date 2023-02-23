@@ -14,4 +14,3 @@ export * from './services/interfaces/rbac.interface';
 export * from './services/rbac.service';
 export * from './interfaces/dynamic.storage.rbac.interface';
 export * from './interfaces/cache.rbac.interface';
-export * from './cache/rbac.cache';
