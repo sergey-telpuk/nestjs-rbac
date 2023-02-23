@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { RBAcGuard } from '../../../../src/guards/rbac.guard';
-import {RBAcAnyPermissions, RBAcAsyncPermissions, RBAcAnyAsyncPermissions} from '../../../../src/decorators/rbac.permissions.decorator';
+import { RBAcAsyncPermissions, RBAcAnyAsyncPermissions } from '../../../../src/decorators/rbac.permissions.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { ASYNC_RBAC_REQUEST_FILTER } from '../../../../src/constans';
 
