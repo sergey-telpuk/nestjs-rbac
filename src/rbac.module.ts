@@ -1,10 +1,11 @@
-import { DynamicModule, Global, Module } from '@nestjs/common';
+import { DynamicModule, Global, Inject, Module, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { RbacService } from './services/rbac.service';
 import { ModuleRef, Reflector } from '@nestjs/core';
 import { StorageRbacService } from './services/storage.rbac.service';
 import { IStorageRbac } from './interfaces/storage.rbac.interface';
 import { IDynamicStorageRbac } from './interfaces/dynamic.storage.rbac.interface';
 import { ICacheRBAC } from './interfaces/cache.rbac.interface';
+import { Ctr } from './ctr/ctr';
 
 @Global()
 @Module({
@@ -18,9 +19,13 @@ import { ICacheRBAC } from './interfaces/cache.rbac.interface';
         RbacService,
     ],
 })
-export class RBAcModule {
+export class RBAcModule implements OnApplicationBootstrap {
     private static cache?: any | ICacheRBAC;
     private static cacheOptions?: { KEY?: string, TTL?: number };
+
+    constructor(
+        private readonly moduleRef: ModuleRef,
+    ) {}
 
     static useCache(
         cache: any | ICacheRBAC,
@@ -57,7 +62,7 @@ export class RBAcModule {
         providers?: any[],
         imports?: any[],
     ): DynamicModule {
-        const inject = [ModuleRef, rbac];
+        const inject = [rbac];
         const commonProviders = [];
         if (RBAcModule.cache) {
             commonProviders.push(RBAcModule.cache, {
@@ -75,8 +80,8 @@ export class RBAcModule {
             rbac,
             {
                 provide: StorageRbacService,
-                useFactory: async (moduleRef: ModuleRef, rbacService: IDynamicStorageRbac, cache?: ICacheRBAC) => {
-                    return new StorageRbacService(moduleRef, rbacService, RBAcModule.setCacheOptions(cache));
+                useFactory: async (rbacService: IDynamicStorageRbac, cache?: ICacheRBAC) => {
+                    return new StorageRbacService(rbacService, RBAcModule.setCacheOptions(cache));
                 },
                 inject,
             },
@@ -107,5 +112,9 @@ export class RBAcModule {
         }
 
         return cache;
+    }
+
+    onApplicationBootstrap(): any {
+        Ctr.ctr = this.moduleRef
     }
 }

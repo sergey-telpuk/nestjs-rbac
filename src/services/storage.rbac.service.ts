@@ -1,14 +1,12 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { IStorageRbac } from '../interfaces/storage.rbac.interface';
-import { ModuleRef } from '@nestjs/core';
 import { IDynamicStorageRbac } from '../interfaces/dynamic.storage.rbac.interface';
 import { ICacheRBAC } from '../interfaces/cache.rbac.interface';
+import { Ctr } from '../ctr/ctr';
 
 @Injectable()
 export class StorageRbacService {
     constructor(
-        @Inject('ModuleRef')
-        private readonly moduleRef: ModuleRef,
         @Inject('IDynamicStorageRbac')
         private readonly rbac: IDynamicStorageRbac,
         @Optional() @Inject('ICacheRBAC')
@@ -46,9 +44,9 @@ export class StorageRbacService {
         for (const key in filters) {
             let filter;
             try {
-                filter = this.moduleRef.get(filters[key]);
+                filter = Ctr.ctr.get(filters[key]);
             } catch (e) {
-                filter = await this.moduleRef.create(filters[key]);
+                filter = await Ctr.ctr.create(filters[key]);
             }
             result[key] = filter;
         }
