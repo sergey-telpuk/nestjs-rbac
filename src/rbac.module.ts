@@ -57,8 +57,8 @@ export class RBAcModule implements OnApplicationBootstrap {
         );
     }
 
-    static forDynamic(
-        rbac: new () => IDynamicStorageRbac,
+    static forDynamic<T extends new (...args: any[]) => IDynamicStorageRbac>(
+        rbac: T,
         providers?: any[],
         imports?: any[],
     ): DynamicModule {
