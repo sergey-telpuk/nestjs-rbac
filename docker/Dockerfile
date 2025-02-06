@@ -1,4 +1,4 @@
-FROM node:19-alpine
+FROM node:alpine
 
 RUN apk update && apk add bash
 
