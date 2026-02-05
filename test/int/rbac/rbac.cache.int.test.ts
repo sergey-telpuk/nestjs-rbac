@@ -1,6 +1,5 @@
 import { INestApplication } from '@nestjs/common';
 import { RBAcModule } from '../../../src/rbac.module';
-import { RbacService } from '../../../src/services/rbac.service';
 import { Test } from '@nestjs/testing';
 import { RBAC } from '../../fixtures/storage';
 import { RbacCache } from '../../../src/cache/rbac.cache';
@@ -9,7 +8,6 @@ import { ICacheRBAC } from '../../../src/interfaces/cache.rbac.interface';
 
 describe('Rbac Cache', () => {
   let app: INestApplication;
-  let rbacService: RbacService;
   let cache: ICacheRBAC;
 
   beforeAll(async () => {
@@ -23,7 +21,6 @@ describe('Rbac Cache', () => {
     ).compile();
 
     app = moduleFixture.createNestApplication();
-    rbacService = moduleFixture.get(RbacService);
     cache = moduleFixture.get('ICacheRBAC');
 
     await app.init();

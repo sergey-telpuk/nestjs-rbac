@@ -1,4 +1,4 @@
-import { DynamicModule, Global, Module, OnApplicationBootstrap } from '@nestjs/common';
+import { DynamicModule, Global, Module, ModuleMetadata, OnApplicationBootstrap, Provider, Type } from '@nestjs/common';
 import { RbacService } from './services/rbac.service';
 import { ModuleRef, Reflector } from '@nestjs/core';
 import { StorageRbacService } from './services/storage.rbac.service';
@@ -20,7 +20,7 @@ import { Ctr } from './ctr/ctr';
     ],
 })
 export class RBAcModule implements OnApplicationBootstrap {
-    private static cache?: any | ICacheRBAC;
+    private static cache?: Type<ICacheRBAC>;
     private static cacheOptions?: { KEY?: string, TTL?: number };
 
     constructor(
@@ -28,7 +28,7 @@ export class RBAcModule implements OnApplicationBootstrap {
     ) {}
 
     static useCache(
-        cache: any | ICacheRBAC,
+        cache: Type<ICacheRBAC>,
         options?: {
             KEY?: string,
             TTL?: number
@@ -41,8 +41,8 @@ export class RBAcModule implements OnApplicationBootstrap {
 
     static forRoot(
         rbac: IStorageRbac,
-        providers?: any[],
-        imports?: any[],
+        providers?: Provider[],
+        imports?: ModuleMetadata['imports'],
     ): DynamicModule {
 
         return RBAcModule.forDynamic(
@@ -57,13 +57,13 @@ export class RBAcModule implements OnApplicationBootstrap {
         );
     }
 
-    static forDynamic<T extends new (...args: any[]) => IDynamicStorageRbac>(
+    static forDynamic<T extends Type<IDynamicStorageRbac>>(
         rbac: T,
-        providers?: any[],
-        imports?: any[],
+        providers?: Provider[],
+        imports?: ModuleMetadata['imports'],
     ): DynamicModule {
-        const inject = [rbac];
-        const commonProviders = [];
+        const inject: Array<Type<unknown>> = [rbac];
+        const commonProviders: Provider[] = [];
         if (RBAcModule.cache) {
             commonProviders.push(RBAcModule.cache, {
                 provide: 'ICacheRBAC',
@@ -97,24 +97,21 @@ export class RBAcModule implements OnApplicationBootstrap {
     }
 
     private static setCacheOptions(cache?: ICacheRBAC) {
-        if (!cache || RBAcModule.cacheOptions) {
-            return cache;
-        }
-        if (!RBAcModule.cacheOptions) {
+        if (!cache || !RBAcModule.cacheOptions) {
             return cache;
         }
         if (RBAcModule.cacheOptions.KEY) {
             cache.KEY = RBAcModule.cacheOptions.KEY;
         }
 
-        if (RBAcModule.cacheOptions.TTL) {
+        if (RBAcModule.cacheOptions.TTL !== undefined) {
             cache.TTL = RBAcModule.cacheOptions.TTL;
         }
 
         return cache;
     }
 
-    onApplicationBootstrap(): any {
-        Ctr.ctr = this.moduleRef
+    onApplicationBootstrap(): void {
+        Ctr.ctr = this.moduleRef;
     }
 }

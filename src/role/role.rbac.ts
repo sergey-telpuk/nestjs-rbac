@@ -5,87 +5,142 @@ import { IParamsFilter } from '../params-filter/interfaces/params.filter.interfa
 
 @Injectable()
 export class RoleRbac implements IRoleRbac {
+    private readonly grantSet: Set<string>;
+    private readonly filterKeys: string[];
+
     constructor(
         private readonly role: string,
-        private readonly grant: string[],
-        private readonly filters: object,
+        grant: string[],
+        private readonly filters: Record<string, IFilterPermission>,
         private readonly paramsFilter?: IParamsFilter,
     ) {
+        this.grantSet = new Set(grant);
+        this.filterKeys = Object.keys(filters);
     }
 
     canAsync(...permissions: string[]): Promise<boolean> {
-        return this.checkPermissions<Promise<boolean>>(permissions, 'canAsync');
+        return this.checkPermissionsAsync(permissions);
     }
 
     can(...permissions: string[]): boolean {
-        return this.checkPermissions<boolean>(permissions, 'can');
+        return this.checkPermissionsSync(permissions);
     }
 
     any(...permissions: string[][]): boolean {
-        // loop through the list of permission list
-        return (
-            permissions
-                .map(permission => {
-                    // check each of the permission list
-                    return this.can(...permission);
-                })
-                // any permission list is true, then return true as result
-                .some(result => result)
-        );
+        return permissions.some(permission => this.can(...permission));
     }
 
     async anyAsync(...permissions: string[][]): Promise<boolean> {
-        return (
-            await Promise.all(
-                permissions.map(permission => {
-                    return this.canAsync(...permission);
-                }),
-            )
-        ).some(result => result);
+        const results = await Promise.all(
+            permissions.map(permission => {
+                return this.canAsync(...permission);
+            }),
+        );
+
+        return results.some(result => result);
     }
 
-    private checkPermissions<T>(permissions, methodName): T {
+    private checkPermissionsSync(permissions: string[]): boolean {
         if (!permissions.length) {
-            return false as any;
+            return false;
         }
-        // check grant
+
         for (const permission of permissions) {
-            if (!this.grant.includes(permission)) {
-                return false as any;
+            if (!this.grantSet.has(permission)) {
+                return false;
             }
         }
 
-        // check custom filter
         for (const permission of permissions) {
-            // check particular permission [permission@action]
-            if (this.grant.includes(permission) && permission.includes('@')) {
-                const filter: string = permission.split('@')[1];
-                const filterService: IFilterPermission = this.filters[filter];
-                if (filterService) {
-                    return (
-                        filterService?.[methodName]?.(
-                            this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
-                        ) ?? true
-                    );
+            if (permission.includes('@')) {
+                const filter = permission.split('@')[1];
+                if (!this.evaluateFilterSync(filter)) {
+                    return false;
                 }
+                continue;
             }
-            // check particular permission [permission]
-            if (this.grant.includes(permission) && !permission.includes('@')) {
-                for (const filter in this.filters) {
-                    if (
-                        this.filters.hasOwnProperty(filter) &&
-                        this.grant.includes(`${permission}@${filter}`)
-                    ) {
-                        return (
-                            this.filters[filter]?.[methodName]?.(
-                                this.paramsFilter ? this.paramsFilter.getParam(filter) : null,
-                            ) ?? true
-                        );
-                    }
+
+            const filters = this.getPermissionFilters(permission);
+            for (const filter of filters) {
+                if (!this.evaluateFilterSync(filter)) {
+                    return false;
                 }
             }
         }
 
-        return true as any;
+        return true;
+    }
+
+    private async checkPermissionsAsync(permissions: string[]): Promise<boolean> {
+        if (!permissions.length) {
+            return false;
+        }
+
+        for (const permission of permissions) {
+            if (!this.grantSet.has(permission)) {
+                return false;
+            }
+        }
+
+        for (const permission of permissions) {
+            if (permission.includes('@')) {
+                const filter = permission.split('@')[1];
+                if (!(await this.evaluateFilterAsync(filter))) {
+                    return false;
+                }
+                continue;
+            }
+
+            const filters = this.getPermissionFilters(permission);
+            for (const filter of filters) {
+                if (!(await this.evaluateFilterAsync(filter))) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private getPermissionFilters(permission: string): string[] {
+        if (!this.filterKeys.length) {
+            return [];
+        }
+
+        return this.filterKeys.filter((filter) => this.grantSet.has(`${permission}@${filter}`));
+    }
+
+    private evaluateFilterSync(filter: string): boolean {
+        const filterService = this.filters[filter];
+        if (!filterService) {
+            return true;
+        }
+
+        if (typeof filterService.can === 'function') {
+            return filterService.can(this.getFilterParams(filter));
+        }
+
+        return false;
+    }
+
+    private async evaluateFilterAsync(filter: string): Promise<boolean> {
+        const filterService = this.filters[filter];
+        if (!filterService) {
+            return true;
+        }
+
+        if (typeof filterService.canAsync === 'function') {
+            return filterService.canAsync(this.getFilterParams(filter));
+        }
+
+        if (typeof filterService.can === 'function') {
+            return filterService.can(this.getFilterParams(filter));
+        }
+
+        return false;
+    }
+
+    private getFilterParams(filter: string): unknown[] | null {
+        return this.paramsFilter ? this.paramsFilter.getParam(filter) : null;
     }
 }

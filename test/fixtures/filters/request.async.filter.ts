@@ -10,13 +10,19 @@ function getRawHeader(name: string, rawHeaders: string[]): string | boolean {
   return rawHeaders[value];
 }
 
+type RequestLike = {
+  headers?: Record<string, string>;
+  rawHeaders?: string[];
+};
+
 @Injectable()
 export class RequestAsyncFilter implements IFilterPermission {
 
-  async canAsync(params?: any[]): Promise<boolean> {
+  async canAsync(params?: unknown[]): Promise<boolean> {
     const name = 'test-header';
     // Fix: missing `headers`, using `rawHeaders` for fixing tests on Node.js 15
-    const header = params[0]?.headers?.[name] ?? getRawHeader(name, params[0].rawHeaders);
+    const request = params?.[0] as RequestLike | undefined;
+    const header = request?.headers?.[name] ?? getRawHeader(name, request?.rawHeaders ?? []);
     return Promise.resolve(header === 'test');
   }
 }

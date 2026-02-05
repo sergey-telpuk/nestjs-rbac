@@ -4,8 +4,8 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class TestAsyncFilterOne implements IFilterPermission {
 
-  canAsync(params?: any[]): Promise<boolean> {
-    return Promise.resolve(params[0]);
+  canAsync(params?: unknown[]): Promise<boolean> {
+    return Promise.resolve(Boolean(params?.[0]));
   }
 
 }

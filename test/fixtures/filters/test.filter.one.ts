@@ -4,8 +4,8 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class TestFilterOne implements IFilterPermission {
 
-  can(params?: any[]): boolean {
-    return params[0];
+  can(params?: unknown[]): boolean {
+    return Boolean(params?.[0]);
   }
 
 }

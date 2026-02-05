@@ -3,11 +3,11 @@ version: '3.7'
 services:
   rbac-module:
     container_name: rbac-module
-#    command: npm run test
-    command: bash -c "while true; do echo hello; sleep 2; done"
+    command: sh -lc "npm ci && npm test"
     build:
       context: ./docker
       dockerfile: Dockerfile
     tty: true
     volumes:
       - .:/app
+      - /app/node_modules

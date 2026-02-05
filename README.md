@@ -7,7 +7,7 @@
 
 # Join our discord server: [Link](https://discord.gg/Gu3KxPJNg3)
 ## Description
-The **rbac** module for [Nest](https://github.com/nestjs/nest). Support NestJS ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+The **rbac** module for [Nest](https://github.com/nestjs/nest). Supports NestJS ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
 
 ## Installation
 npm i --save nestjs-rbac
@@ -17,9 +17,9 @@ For using `RBAC` there is need to implement `IStorageRbac`
 ```typescript
 export interface IStorageRbac {
   roles: string[];
-  permissions: object;
-  grants: object;
-  filters: { [key: string]: any | IFilterPermission };
+  permissions: Record<string, string[]>;
+  grants: Record<string, string[]>;
+  filters: Record<string, Type<IFilterPermission> | IFilterPermission>;
 }
 ```
 ### For instance:
@@ -59,15 +59,21 @@ export const RBAC: IStorageRbac = {
 
 `roles`: array of roles
 
-`permissions`: objects of permissions which content actions
+`permissions`: map of permission name to allowed actions
 
-`grants`: objects of assigned permission to roles
+`grants`: map of role name to permission grants
 
-`filters`:  objects of customized behavior
+`filters`: map of filter key to filter implementation (class or instance)
 
-prefix `ASYNC_` use for async operations
+Prefix `ASYNC_` use for async operations
+
+### Behavior notes
+- Grants are expanded to include `permission@action` for each action in `permissions`.
+- Missing permissions in `permissions` are ignored during grant parsing.
+- When multiple permissions are passed to `can`/`canAsync`, all must pass (AND).
+- `ParamsFilter.setParam` stores arguments as an array; filters receive the same array.
 ### Grant symbols
-`&`: extends grant by another grant, for instance `admin` extends `user` _(only support one level inheritance)_
+`&`: extends grant by another grant, for instance `admin` extends `user` _(only supports one level inheritance)_
 
 `@`: a particular action from permission, for instance `permission1@update`
 ### Using RBAC like an unchangeable storage
@@ -135,7 +141,7 @@ export class RbacTestController {
     }
 }
 
-// example Async 
+// example Async
 @Controller()
 export class RbacAsyncTestController {
 
@@ -223,7 +229,7 @@ export class RbacAsyncTestController {
     }
 }
 
-// example 
+// example
 export class RbacTestController {
 
     @RBAcPermissions('permission1')
@@ -344,7 +350,7 @@ export class CompaniesController implements CrudController<Company> {
 	constructor(public service: CompaniesService) {}
 }
 ```
-### one more example
+### One more example
 ```typescript
 @Crud({
 	model: {
@@ -436,7 +442,7 @@ export class TestAsyncFilter implements IFilterPermission {
 ```
 :warning: - A single filter can implement both `can` and `canAsync`. If you use the RBAcGuard, they will be evaluated with an **AND** condition.
 
-`ParamsFilter` services for passing arguments into particular filter:
+`ParamsFilter` service for passing arguments into particular filter:
 ```typescript
 const filter = new ParamsFilter();
 filter.setParam('filter1', some payload);
@@ -494,22 +500,22 @@ import { RbacCache } from 'nestjs-rbac';
   ],
 })
 ```
-if you need to change a cache storage, there is enough to implement  `ICacheRBAC`
+if you need to change a cache storage, there is enough to implement `ICacheRBAC`
 #### ICacheRBAC
 ```typescript
 export interface ICacheRBAC {
   KEY: string;
   TTL: number;
 
-  get(): object | null;
+  get(): object | null | Promise<object | null>;
 
   /**
    *
    * @param value
    */
-  set(value: object): void;
+  set(value: object): void | Promise<void>;
 
-  del(): void;
+  del(): void | Promise<void>;
 }
 ```
 #### Inject `ICacheRBAC`
@@ -519,5 +525,20 @@ import { ICacheRBAC } from 'nestjs-rbac';
 @Inject('ICacheRBAC') cache: ICacheRBAC
 ```
 
+## Testing
+```bash
+npm test
+npm run test:int
+npm run test:e2e
+```
 
+## Linting
+```bash
+npm run lint
+npm run lint:fix
+```
 
+## Docker
+```bash
+docker-compose up --build
+```
