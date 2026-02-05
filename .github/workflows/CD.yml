@@ -3,6 +3,9 @@ on:
   push:
     tags:
       - 'v*'
+permissions:
+  contents: read
+  id-token: write
 jobs:
   release:
     name: Publish Package
@@ -23,11 +26,12 @@ jobs:
         with:
           COMMIT_DISABLED: 1
 
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
+
       - name: Install Package dependencies
         run: npm ci
       - name: Build
         run: npm run build
       - name: Publish
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        run: npm publish --provenance
