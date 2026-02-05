@@ -15,6 +15,8 @@ npm i --save nestjs-rbac
 ## Quick Start
 For using `RBAC` there is need to implement `IStorageRbac`
 ```typescript
+import { Type } from '@nestjs/common';
+
 export interface IStorageRbac {
   roles: string[];
   permissions: Record<string, string[]>;
@@ -420,8 +422,8 @@ import { IFilterPermission } from 'nestjs-rbac';
 
 export class TestFilter implements IFilterPermission {
 
-  can(params?: any[]): boolean {
-    return params[0];
+  can(params?: unknown[]): boolean {
+    return Boolean(params?.[0]);
   }
 
 }
@@ -433,10 +435,10 @@ import { IFilterPermission } from 'nestjs-rbac';
 export class TestAsyncFilter implements IFilterPermission {
   constructor(private readonly myService: MyService) {}
 
-  async canAsync(params?: any[]): Promise<boolean> {
+  async canAsync(params?: unknown[]): Promise<boolean> {
     const myResult = await this.myService.someAsyncOperation()
     // Do something with myResult
-    return myResult;
+    return Boolean(myResult);
   }
 }
 ```
@@ -457,8 +459,9 @@ Also RBAC has a default filter `RBAC_REQUEST_FILTER` which has `request` object 
 //===================== filter
 export class RequestFilter implements IFilterPermission {
 
-  can(params?: any[]): boolean {
-    return params[0].headers['test-header'] === 'test';
+  can(params?: unknown[]): boolean {
+    const request = params?.[0] as { headers?: Record<string, string> } | undefined;
+    return request?.headers?.['test-header'] === 'test';
   }
 }
 //===================== storage
