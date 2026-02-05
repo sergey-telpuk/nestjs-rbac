@@ -5,528 +5,247 @@
 ![RBAC CI](https://github.com/sergey-telpuk/nestjs-rbac/workflows/RBAC%20CI/badge.svg)
 ![RBAC CD](https://github.com/sergey-telpuk/nestjs-rbac/workflows/RBAC%20CD/badge.svg)
 
-# Join our discord server: [Link](https://discord.gg/Gu3KxPJNg3)
-## Description
-The **rbac** module for [Nest](https://github.com/nestjs/nest). Supports NestJS ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+# nestjs-rbac
+RBAC module for [Nest](https://github.com/nestjs/nest) applications.
+
+## Community
+Join our Discord server: [Link](https://discord.gg/Gu3KxPJNg3)
+
+## Compatibility
+Supports NestJS ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0.
 
 ## Installation
-npm i --save nestjs-rbac
-
-## Quick Start
-For using `RBAC` there is need to implement `IStorageRbac`
-```typescript
-import { Type } from '@nestjs/common';
-
-export interface IStorageRbac {
-  roles: string[];
-  permissions: Record<string, string[]>;
-  grants: Record<string, string[]>;
-  filters: Record<string, Type<IFilterPermission> | IFilterPermission>;
-}
-```
-### For instance:
-```typescript
-export const RBAC: IStorageRbac = {
-    roles: ['admin', 'user'],
-    permissions: {
-        permission1: ['create', 'update', 'delete'],
-        permission2: ['create', 'update', 'delete'],
-        permission3: ['filter1', 'filter2', RBAC_REQUEST_FILTER],
-        permission4: ['create', 'update', 'delete'],
-        permission5: ['ASYNC_filter1', 'ASYNC_filter2', ASYNC_RBAC_REQUEST_FILTER],
-    },
-    grants: {
-        admin: [
-            '&user',
-            'permission1',
-            'permission3',
-            'permission5',
-        ],
-        user: ['&userRoot', 'permission2', 'permission1@create', 'permission3@filter1', 'permission5@ASYNC_filter1'],
-        userRoot: ['permission4'],
-
-    },
-    filters: {
-        filter1: TestFilterOne,
-        filter2: TestFilterTwo,
-        ASYNC_filter1: TestAsyncFilterOne,
-        ASYNC_filter2: TestAsyncFilterTwo,
-        [RBAC_REQUEST_FILTER]: RequestFilter,
-        [ASYNC_RBAC_REQUEST_FILTER]: RequestAsyncFilter,
-    },
-};
+```bash
+npm i nestjs-rbac
 ```
 
-### Storage consists of the following keys:
+## Core concepts
+RBAC storage consists of the following keys:
 
-`roles`: array of roles
+- `roles`: list of role names
+- `permissions`: map of permission name to allowed actions
+- `grants`: map of role name to permission grants
+- `filters`: map of filter key to filter implementation (class or instance)
 
-`permissions`: map of permission name to allowed actions
+Prefix `ASYNC_` use for async operations.
 
-`grants`: map of role name to permission grants
-
-`filters`: map of filter key to filter implementation (class or instance)
-
-Prefix `ASYNC_` use for async operations
+### Grant syntax
+- `&` extends another grant, for instance `admin` extends `user` (only one level of inheritance)
+- `@` selects a single action, for instance `permission1@update`
 
 ### Behavior notes
 - Grants are expanded to include `permission@action` for each action in `permissions`.
 - Missing permissions in `permissions` are ignored during grant parsing.
-- When multiple permissions are passed to `can`/`canAsync`, all must pass (AND).
+- When multiple permissions are passed to `can` or `canAsync`, all must pass (AND).
 - `ParamsFilter.setParam` stores arguments as an array; filters receive the same array.
-### Grant symbols
-`&`: extends grant by another grant, for instance `admin` extends `user` _(only supports one level inheritance)_
 
-`@`: a particular action from permission, for instance `permission1@update`
-### Using RBAC like an unchangeable storage
+## Quick start
+Define your RBAC storage:
+```typescript
+import { Type } from '@nestjs/common';
+import { IFilterPermission, IStorageRbac } from 'nestjs-rbac';
+
+export const RBAC: IStorageRbac = {
+  roles: ['admin', 'user'],
+  permissions: {
+    permission1: ['create', 'update', 'delete'],
+    permission2: ['create', 'update', 'delete'],
+    permission3: ['filter1', 'filter2', RBAC_REQUEST_FILTER],
+    permission4: ['create', 'update', 'delete'],
+    permission5: ['ASYNC_filter1', 'ASYNC_filter2', ASYNC_RBAC_REQUEST_FILTER],
+  },
+  grants: {
+    admin: ['&user', 'permission1', 'permission3', 'permission5'],
+    user: [
+      '&userRoot',
+      'permission2',
+      'permission1@create',
+      'permission3@filter1',
+      'permission5@ASYNC_filter1',
+    ],
+    userRoot: ['permission4'],
+  },
+  filters: {
+    filter1: TestFilterOne,
+    filter2: TestFilterTwo,
+    ASYNC_filter1: TestAsyncFilterOne,
+    ASYNC_filter2: TestAsyncFilterTwo,
+    [RBAC_REQUEST_FILTER]: RequestFilter,
+    [ASYNC_RBAC_REQUEST_FILTER]: RequestAsyncFilter,
+  },
+};
+```
+
+Register the module:
 ```typescript
 import { Module } from '@nestjs/common';
 import { RBAcModule } from 'nestjs-rbac';
 
 @Module({
-  imports: [
-    RBAcModule.forRoot(IStorageRbac),
-  ],
-  controllers: []
+  imports: [RBAcModule.forRoot(RBAC)],
+  controllers: [],
 })
 export class AppModule {}
 ```
-### Using RBAC like a dynamic storage
-_There is enough to implement IDynamicStorageRbac interface._
+
+Protect routes with the guard and decorators:
 ```typescript
-import { Module } from '@nestjs/common';
-import { RBAcModule } from 'nestjs-rbac';
-
-@Module({
-  imports: [
-    RBAcModule.forDynamic(DynamicStorageService),
-  ],
-  controllers: []
-})
-export class AppModule {}
-// implement dynamic storage
-import { IDynamicStorageRbac, IStorageRbac } from 'nestjs-rbac';
-@Injectable()
-export class  DynamicStorageService implements IDynamicStorageRbac {
-  constructor(
-    private readonly repository: AnyRepository
-  ) {
-
-  }
-  async getRbac(): Promise<IStorageRbac> {
-//use any persistence storage for getting `RBAC`
-      return  await this.repository.getRbac();
-  }
-}
-```
-#### Using for routers RBAcPermissions
-
-```typescript
-import {RBAcPermissions, RBAcGuard} from 'nestjs-rbac';
-import {RBAcAsyncPermissions} from "./rbac.permissions.decorator";
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { RBAcGuard, RBAcPermissions } from 'nestjs-rbac';
 
 @Controller()
 export class RbacTestController {
-
-    @RBAcPermissions('permission', 'permission@create')
-    @UseGuards(
-// Any Guard for getting & adding user to request which implements `IRole` interface from `nestjs-rbac`:
-//*NOTE:
-//  const request = context.switchToHttp().getRequest();
-//  const user: IRole = request.user;
-        GuardIsForAddingUserToRequestGuard,
-        RBAcGuard,
-    )
-    @Get('/')
-    async test1(): Promise<boolean> {
-        return true;
-    }
-}
-
-// example Async
-@Controller()
-export class RbacAsyncTestController {
-
-    @RBAcAsyncPermissions('permission1')
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/admin-permission1')
-    async test1(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcAsyncPermissions('permission2', 'permission1')
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/admin-permission1-and-permission2')
-    async test2(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcAsyncPermissions('permission4')
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/admin-permission4')
-    async test3(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcAsyncPermissions(`permission5@${ASYNC_RBAC_REQUEST_FILTER}`)
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/admin-request-filter')
-    async test4(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcAsyncPermissions(`permission4`)
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/user-extends-userRoot')
-    async test5(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcAsyncPermissions(`permission1@create`)
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/user-permission1@create')
-    async test7(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcAsyncPermissions(`permission1@delete`)
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/user-permission1@delete')
-    async test8(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcAnyAsyncPermissions(
-        [`permission1@delete`],
-        [`permission1@create`]
-    )
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/user-permission1@deleteOrCreate')
-    async test9(): Promise<boolean> {
-        return true;
-    }
-}
-
-// example
-export class RbacTestController {
-
-    @RBAcPermissions('permission1')
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/admin-permission1')
-    async test1(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcPermissions('permission2', 'permission1')
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/admin-permission1-and-permission2')
-    async test2(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcPermissions('permission4')
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/admin-permission4')
-    async test3(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcPermissions(`permission3@${RBAC_REQUEST_FILTER}`)
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/admin-request-filter')
-    async test4(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcPermissions(`permission4`)
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/user-extends-userRoot')
-    async test5(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcPermissions(`permission1@create`)
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/user-permission1@create')
-    async test7(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcPermissions(`permission1@delete`)
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/user-permission1@delete')
-    async test8(): Promise<boolean> {
-        return true;
-    }
-
-    @RBAcAnyPermissions(
-        [`permission1@delete`],
-        [`permission1@create`]
-    )
-    @UseGuards(
-        AuthGuard,
-        RBAcGuard,
-    )
-    @Get('/user-permission1@deleteOrCreate')
-    async test9(): Promise<boolean> {
-        return true;
-    }
-
-
-```
-### Variety of the decorators
-
-`@RBAcPermissions`: obtain 'permission', 'permission@create'
-
-`@RBAcAnyPermissions`: obtain ['permission'], ['permission@create']
-
-`@RBAcAsyncPermissions`: obtain ['permission'], ['permission@create']
-
-`@RBAcAnyAsyncPermissions` obtain ['permission'], ['permission@create'] and async filter
-
-#### Async filter
-For using async filter add `ASYNC_` 
-
-#### Using for a whole controller
-It's applicable with the crud library, for example [nestjsx/crud](https://github.com/nestjsx/crud)
-```typescript
-import { RBAcPermissions, RBAcGuard } from 'nestjs-rbac';
-
-@Crud({
-	model: {
-		type: Company,
-	},
-})
-@RBAcPermissions('permission2')
-@UseGuards(
-		AuthGuard,
-		RBAcGuard,
-)
-@Controller('companies')
-export class CompaniesController implements CrudController<Company> {
-	constructor(public service: CompaniesService) {}
-}
-```
-### One more example
-```typescript
-@Crud({
-	model: {
-		type: Company,
-	},
-	routes: {
-		getManyBase: {
-			interceptors : [],
-			decorators: [RBAcPermissions('permission1')],
-		},
-		createOneBase: {
-			interceptors : [],
-			decorators: [RBAcPermissions('permission2')],
-		},
-	},
-})
-@UseGuards(
-		AuthGuard,
-		RBAcGuard,
-)
-@Controller('companies')
-export class CompaniesController implements CrudController<Company> {
-	constructor(public service: CompaniesService) {
-	}
-}
-```
-#### Using like service
-```typescript
-import { RbacService } from 'nestjs-rbac';
-
-@Controller()
-export class RbacTestController {
-
-  constructor(
-    private readonly rbac: RbacService
-  ){}
-
-  @Get('/')
-  async test1(): Promise<boolean> {
-    return await (await this.rbac.getRole(role)).can('permission', 'permission@create');
+  @RBAcPermissions('permission1', 'permission1@create')
+  @UseGuards(AuthGuard, RBAcGuard)
+  @Get('/example')
+  async example(): Promise<boolean> {
     return true;
   }
 }
 ```
-#### Using the custom filters
-`filter` is a great opportunity of customising behaviour RBAC.
-For creating `filter`, there is need to implement `IFilterPermission` interface, which requires for implementing `can` method, and bind a key filter with filter implementation, like below:
+
+> Note: The guard expects `request.user` to implement `IRole` (`{ role: string }`).
+
+## Static vs dynamic storage
+### Static storage
 ```typescript
-export const RBAC: IStorageRbac = {
-  roles: ['role'],
-  permissions: {
-    permission1: ['filter1', 'filter2'],
-  },
-  grants: {
-    role: [
-      `permission1@filter1`
-      `permission1@filter2`
-    ],
-  },
-  filters: {
-    filter1: TestFilter,
-    filter2: TestAsyncFilter,
-  },
-};
-//===================== implementing filter
+import { Module } from '@nestjs/common';
+import { RBAcModule } from 'nestjs-rbac';
+
+@Module({
+  imports: [RBAcModule.forRoot(RBAC)],
+})
+export class AppModule {}
+```
+
+### Dynamic storage
+Implement `IDynamicStorageRbac` to load RBAC rules from a database, service, or file:
+```typescript
+import { Injectable, Module } from '@nestjs/common';
+import { IDynamicStorageRbac, IStorageRbac, RBAcModule } from 'nestjs-rbac';
+
+@Injectable()
+export class DynamicStorageService implements IDynamicStorageRbac {
+  constructor(private readonly repository: AnyRepository) {}
+
+  async getRbac(): Promise<IStorageRbac> {
+    return this.repository.getRbac();
+  }
+}
+
+@Module({
+  imports: [RBAcModule.forDynamic(DynamicStorageService)],
+})
+export class AppModule {}
+```
+
+## Decorators
+- `@RBAcPermissions('permission', 'permission@create')` (AND)
+- `@RBAcAnyPermissions(['permission'], ['permission@create'])` (OR)
+- `@RBAcAsyncPermissions('permission', 'permission@create')` (AND, async filters)
+- `@RBAcAnyAsyncPermissions(['permission'], ['permission@create'])` (OR, async filters)
+
+### Controller-wide guard example (CRUD)
+```typescript
+import { RBAcPermissions, RBAcGuard } from 'nestjs-rbac';
+
+@Crud({ model: { type: Company } })
+@RBAcPermissions('permission2')
+@UseGuards(AuthGuard, RBAcGuard)
+@Controller('companies')
+export class CompaniesController implements CrudController<Company> {
+  constructor(public service: CompaniesService) {}
+}
+```
+
+## Using as a service
+```typescript
+import { Controller, Get } from '@nestjs/common';
+import { RbacService } from 'nestjs-rbac';
+
+@Controller()
+export class RbacTestController {
+  constructor(private readonly rbac: RbacService) {}
+
+  @Get('/')
+  async test(): Promise<boolean> {
+    return (await this.rbac.getRole(role)).can('permission', 'permission@create');
+  }
+}
+```
+
+## Custom filters
+Filters allow custom runtime checks. Implement `IFilterPermission` and bind the filter key in storage.
+```typescript
 import { IFilterPermission } from 'nestjs-rbac';
 
 export class TestFilter implements IFilterPermission {
-
   can(params?: unknown[]): boolean {
     return Boolean(params?.[0]);
   }
-
 }
-
-//===================== implementing async filter
-import { IFilterPermission } from 'nestjs-rbac';
 
 @Injectable()
 export class TestAsyncFilter implements IFilterPermission {
   constructor(private readonly myService: MyService) {}
 
   async canAsync(params?: unknown[]): Promise<boolean> {
-    const myResult = await this.myService.someAsyncOperation()
-    // Do something with myResult
+    const myResult = await this.myService.someAsyncOperation();
     return Boolean(myResult);
   }
 }
 ```
-:warning: - A single filter can implement both `can` and `canAsync`. If you use the RBAcGuard, they will be evaluated with an **AND** condition.
 
-`ParamsFilter` service for passing arguments into particular filter:
+A single filter can implement both `can` and `canAsync`. If you use the `RBAcGuard`, they are evaluated with an AND condition.
+
+### ParamsFilter
 ```typescript
 const filter = new ParamsFilter();
-filter.setParam('filter1', some payload);
+filter.setParam('filter1', somePayload);
 
-const res = await (await rbacService.getRole('admin', filter)).can(
-  'permission1@filter1',
-);
+const res = (await rbacService.getRole('admin', filter)).can('permission1@filter1');
 ```
-Also RBAC has a default filter `RBAC_REQUEST_FILTER` which has `request` object as argument:
-##### Example:
-```typescript
-//===================== filter
-export class RequestFilter implements IFilterPermission {
 
+### Request filter example
+`RBAC_REQUEST_FILTER` passes the request object into the filter:
+```typescript
+import { IFilterPermission, RBAC_REQUEST_FILTER } from 'nestjs-rbac';
+
+export class RequestFilter implements IFilterPermission {
   can(params?: unknown[]): boolean {
     const request = params?.[0] as { headers?: Record<string, string> } | undefined;
     return request?.headers?.['test-header'] === 'test';
   }
 }
-//===================== storage
+
 export const RBAC: IStorageRbac = {
   roles: ['role'],
   permissions: {
     permission1: ['filter1', 'filter2', RBAC_REQUEST_FILTER],
   },
   grants: {
-    role: [
-      `permission1@${RBAC_REQUEST_FILTER}`
-    ],
+    role: [`permission1@${RBAC_REQUEST_FILTER}`],
   },
   filters: {
     [RBAC_REQUEST_FILTER]: RequestFilter,
   },
 };
-//===================== using for routes
-  @RBAcPermissions(`permission1@${RBAC_REQUEST_FILTER}`)
-  @UseGuards(
-    AuthGuard,
-    RBAcGuard,
-  )
-  @Get('/')
-  async test4(): Promise<boolean> {
-    return true;
-  }
 ```
-### Performance
-By default, RBAC storage always parses grants for each request, in some cases, it can be a very expensive operation.
-The bigger RBAC storage, the more taking time for parsing. For saving performance RBAC has built-in a cache, based on [node-cache](https://github.com/node-cache/node-cache)
-#### Using cache
+
+## Cache
+Large RBAC storages can make grant parsing expensive. You can enable cache with the built-in `RbacCache` (node-cache):
 ```typescript
-import { RbacCache } from 'nestjs-rbac';
+import { RBAcModule, RbacCache } from 'nestjs-rbac';
 
 @Module({
   imports: [
-    RBAcModule.useCache(RbacCache, {KEY: 'RBAC', TTL: 400}).forDynamic(AsyncService),
+    RBAcModule.useCache(RbacCache, { KEY: 'RBAC', TTL: 400 }).forDynamic(AsyncService),
   ],
 })
+export class AppModule {}
 ```
-if you need to change a cache storage, there is enough to implement `ICacheRBAC`
-#### ICacheRBAC
-```typescript
-export interface ICacheRBAC {
-  KEY: string;
-  TTL: number;
 
-  get(): object | null | Promise<object | null>;
-
-  /**
-   *
-   * @param value
-   */
-  set(value: object): void | Promise<void>;
-
-  del(): void | Promise<void>;
-}
-```
-#### Inject `ICacheRBAC`
-```typescript
-import { ICacheRBAC } from 'nestjs-rbac';
-...
-@Inject('ICacheRBAC') cache: ICacheRBAC
-```
+To use a custom cache, implement `ICacheRBAC` and inject it via `@Inject('ICacheRBAC')`.
 
 ## Testing
 ```bash
