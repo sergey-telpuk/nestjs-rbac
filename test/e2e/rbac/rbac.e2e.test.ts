@@ -151,6 +151,17 @@ describe('RBAC Guard', () => {
 
   });
 
+  describe('Multiple decorators', () => {
+    it('Should return 403 when handler has more than one RBAC decorator', async () => {
+      const res = await request(app.getHttpServer())
+          .get('/multiple-decorators')
+          .set('Role', 'admin')
+          .send()
+          .expect(403);
+      expect(String(res.body.message ?? res.text)).toMatch(/Multiple RBAC decorators/);
+    });
+  });
+
   afterAll(async () => {
     await app.close();
   });

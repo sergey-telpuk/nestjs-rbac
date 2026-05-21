@@ -28,24 +28,37 @@ export class RBAcGuard implements CanActivate {
         }
 
         const permAsync = this.readMetadata<string[]>(context, RBAcAsyncPermissions.name);
+        const perm = this.readMetadata<string[]>(context, RBAcPermissions.name);
+        const permAny = this.readMetadata<string[][]>(context, RBAcAnyPermissions.name);
+        const permAnyAsync = this.readMetadata<string[][]>(context, RBAcAnyAsyncPermissions.name);
+
+        const active: string[] = [];
+        if (permAsync.length > 0) active.push(RBAcAsyncPermissions.name);
+        if (perm.length > 0) active.push(RBAcPermissions.name);
+        if (permAny.length > 0) active.push(RBAcAnyPermissions.name);
+        if (permAnyAsync.length > 0) active.push(RBAcAnyAsyncPermissions.name);
+
+        if (active.length > 1) {
+            throw new ForbiddenException(
+                `Multiple RBAC decorators on the same handler are not allowed: ${active.join(', ')}`,
+            );
+        }
+
         if (permAsync.length > 0) {
             const role = await this.resolveRole(user.role, request, ASYNC_RBAC_REQUEST_FILTER);
             return role.canAsync(...permAsync);
         }
 
-        const perm = this.readMetadata<string[]>(context, RBAcPermissions.name);
         if (perm.length > 0) {
             const role = await this.resolveRole(user.role, request, RBAC_REQUEST_FILTER);
             return role.can(...perm);
         }
 
-        const permAny = this.readMetadata<string[][]>(context, RBAcAnyPermissions.name);
         if (permAny.length > 0) {
             const role = await this.resolveRole(user.role, request, RBAC_REQUEST_FILTER);
             return role.any(...permAny);
         }
 
-        const permAnyAsync = this.readMetadata<string[][]>(context, RBAcAnyAsyncPermissions.name);
         if (permAnyAsync.length > 0) {
             const role = await this.resolveRole(user.role, request, ASYNC_RBAC_REQUEST_FILTER);
             return role.anyAsync(...permAnyAsync);

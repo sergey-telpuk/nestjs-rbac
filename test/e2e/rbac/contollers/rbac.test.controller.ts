@@ -1,6 +1,10 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { RBAcGuard } from '../../../../src/guards/rbac.guard';
-import { RBAcPermissions, RBAcAnyPermissions } from '../../../../src/decorators/rbac.permissions.decorator';
+import {
+    RBAcAnyPermissions,
+    RBAcAsyncPermissions,
+    RBAcPermissions,
+} from '../../../../src/decorators/rbac.permissions.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { RBAC_REQUEST_FILTER } from '../../../../src/constans';
 
@@ -87,6 +91,17 @@ export class RbacTestController {
   )
   @Get('/user-permission1@deleteOrCreate')
   async test9(): Promise<boolean> {
+    return true;
+  }
+
+  @RBAcPermissions('permission1')
+  @RBAcAsyncPermissions('permission1')
+  @UseGuards(
+      AuthGuard,
+      RBAcGuard,
+  )
+  @Get('/multiple-decorators')
+  async test10(): Promise<boolean> {
     return true;
   }
 
