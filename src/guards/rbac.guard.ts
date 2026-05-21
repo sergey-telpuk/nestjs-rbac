@@ -10,106 +10,61 @@ import {
     RBAcAsyncPermissions,
     RBAcPermissions
 } from '../decorators/rbac.permissions.decorator';
+import { IRoleRbac } from '../role/interfaces/role.rbac.interface';
 
 @Injectable()
 export class RBAcGuard implements CanActivate {
     constructor(
         private readonly reflector: Reflector,
         private readonly rbacService: RbacService,
-    ) {
+    ) {}
 
-    }
-
-    async canActivate(
-        context: ExecutionContext,
-    ): Promise<boolean> {
+    async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
-        const user: IRole = request.user;
+        const user: IRole | undefined = request?.user;
 
-        if (!user) {
+        if (!user || typeof user.role !== 'string') {
             throw new ForbiddenException('Getting user was failed.');
         }
 
-        {
-            const permAsync = this.rbacAsync(context);
-            if (permAsync.length > 0) {
-                const filter = new ParamsFilter();
-                filter.setParam(ASYNC_RBAC_REQUEST_FILTER, {...request});
-                return (await this.rbacService.getRole(user.role, filter)).canAsync(...permAsync);
-            }
+        const permAsync = this.readMetadata<string[]>(context, RBAcAsyncPermissions.name);
+        if (permAsync.length > 0) {
+            const role = await this.resolveRole(user.role, request, ASYNC_RBAC_REQUEST_FILTER);
+            return role.canAsync(...permAsync);
         }
 
-        {
-            const perm = this.rbac(context);
-            if (perm.length > 0) {
-                const filter = new ParamsFilter();
-                filter.setParam(RBAC_REQUEST_FILTER, {...request});
-                return (await this.rbacService.getRole(user.role, filter)).can(...perm);
-            }
+        const perm = this.readMetadata<string[]>(context, RBAcPermissions.name);
+        if (perm.length > 0) {
+            const role = await this.resolveRole(user.role, request, RBAC_REQUEST_FILTER);
+            return role.can(...perm);
         }
 
-        {
-            const permAny = this.rbacAny(context);
-            if (permAny.length > 0) {
-                const filter = new ParamsFilter();
-                filter.setParam(RBAC_REQUEST_FILTER, {...request});
-                return (await this.rbacService.getRole(user.role, filter)).any(...permAny);
-            }
+        const permAny = this.readMetadata<string[][]>(context, RBAcAnyPermissions.name);
+        if (permAny.length > 0) {
+            const role = await this.resolveRole(user.role, request, RBAC_REQUEST_FILTER);
+            return role.any(...permAny);
         }
 
-        {
-            const permAnyAsync = this.rbacAnyAsync(context);
-            if (permAnyAsync.length > 0) {
-                const filter = new ParamsFilter();
-                filter.setParam(ASYNC_RBAC_REQUEST_FILTER, {...request});
-                return await (await this.rbacService.getRole(user.role, filter)).anyAsync(...permAnyAsync);
-            }
+        const permAnyAsync = this.readMetadata<string[][]>(context, RBAcAnyAsyncPermissions.name);
+        if (permAnyAsync.length > 0) {
+            const role = await this.resolveRole(user.role, request, ASYNC_RBAC_REQUEST_FILTER);
+            return role.anyAsync(...permAnyAsync);
         }
 
         throw new ForbiddenException();
     }
 
-    private rbacAsync(context: ExecutionContext): string[] {
-        const permissions = this.reflector.get<string[]>(RBAcAsyncPermissions.name, context.getHandler())
-            || this.reflector.get<string[]>(RBAcAsyncPermissions.name, context.getClass());
-
-        if (permissions !== undefined) {
-            return permissions;
-        }
-
-        return [];
+    private async resolveRole(role: string, request: unknown, filterKey: string): Promise<IRoleRbac> {
+        const filter = new ParamsFilter();
+        filter.setParam(filterKey, { ...(request as object) });
+        return this.rbacService.getRole(role, filter);
     }
 
-    private rbac(context: ExecutionContext): string[] {
-        const permissions = this.reflector.get<string[]>(RBAcPermissions.name, context.getHandler())
-            || this.reflector.get<string[]>(RBAcPermissions.name, context.getClass());
+    private readMetadata<T>(context: ExecutionContext, key: string): T extends unknown[] ? T : never {
+        const value =
+            this.reflector.get<T>(key, context.getHandler()) ||
+            this.reflector.get<T>(key, context.getClass());
 
-        if (permissions !== undefined) {
-            return permissions;
-        }
-
-        return [];
-    }
-
-    private rbacAny(context: ExecutionContext): string[][] {
-        const permissions = this.reflector.get<string[][]>(RBAcAnyPermissions.name, context.getHandler())
-            || this.reflector.get<string[][]>(RBAcAnyPermissions.name, context.getClass());
-
-        if (permissions !== undefined) {
-            return permissions;
-        }
-
-        return [];
-    }
-
-    private rbacAnyAsync(context: ExecutionContext): string[][] {
-        const permissions = this.reflector.get<string[][]>(RBAcAnyAsyncPermissions.name, context.getHandler())
-            || this.reflector.get<string[][]>(RBAcAnyAsyncPermissions.name, context.getClass());
-
-        if (permissions !== undefined) {
-            return permissions;
-        }
-
-        return [];
+        return (value ?? []) as T extends unknown[] ? T : never;
     }
 }

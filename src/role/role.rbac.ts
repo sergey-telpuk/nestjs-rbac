@@ -52,9 +52,9 @@ export class RoleRbac implements IRoleRbac {
         }
 
         for (const permission of permissions) {
-            if (permission.includes('@')) {
-                const filter = permission.split('@')[1];
-                if (!this.evaluateFilterSync(filter)) {
+            const explicitFilter = this.extractFilter(permission);
+            if (explicitFilter !== null) {
+                if (!this.evaluateFilterSync(explicitFilter)) {
                     return false;
                 }
                 continue;
@@ -83,9 +83,9 @@ export class RoleRbac implements IRoleRbac {
         }
 
         for (const permission of permissions) {
-            if (permission.includes('@')) {
-                const filter = permission.split('@')[1];
-                if (!(await this.evaluateFilterAsync(filter))) {
+            const explicitFilter = this.extractFilter(permission);
+            if (explicitFilter !== null) {
+                if (!(await this.evaluateFilterAsync(explicitFilter))) {
                     return false;
                 }
                 continue;
@@ -100,6 +100,14 @@ export class RoleRbac implements IRoleRbac {
         }
 
         return true;
+    }
+
+    private extractFilter(permission: string): string | null {
+        const atIndex = permission.indexOf('@');
+        if (atIndex === -1) {
+            return null;
+        }
+        return permission.slice(atIndex + 1);
     }
 
     private getPermissionFilters(permission: string): string[] {

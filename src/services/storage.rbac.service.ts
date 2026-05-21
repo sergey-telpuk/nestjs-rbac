@@ -7,14 +7,15 @@ import { IFilterPermission } from '../permissions/interfaces/filter.permission.i
 
 @Injectable()
 export class StorageRbacService {
+    private readonly parsedGrantCache = new WeakMap<IStorageRbac, GrantMap>();
+    private readonly resolvedFilterCache = new WeakMap<IStorageRbac, Record<string, IFilterPermission>>();
+
     constructor(
         @Inject('IDynamicStorageRbac')
         private readonly rbac: IDynamicStorageRbac,
         @Optional() @Inject('ICacheRBAC')
         private readonly cache?: ICacheRBAC,
-    ) {
-
-    }
+    ) {}
 
     async getStorage(): Promise<IStorageRbac> {
         return await this.rbac.getRbac();
@@ -39,120 +40,127 @@ export class StorageRbacService {
     }
 
     async getFilters(): Promise<Record<string, IFilterPermission>> {
-        const result: Record<string, IFilterPermission> = {};
-        const filters = (await this.getStorage()).filters || {};
-        /* tslint:disable */
-        for (const key in filters) {
-            let filter: IFilterPermission;
-            try {
-                const filterToken = filters[key];
-                if (typeof filterToken === 'function') {
-                    filter = Ctr.ctr.get(filterToken);
-                } else {
-                    filter = filterToken as IFilterPermission;
-                }
-            } catch {
-                const filterToken = filters[key];
-                if (typeof filterToken === 'function') {
-                    filter = await Ctr.ctr.create(filterToken);
-                } else {
-                    filter = filterToken as IFilterPermission;
-                }
-            }
-            result[key] = filter;
+        const storage = await this.getStorage();
+        const cached = this.resolvedFilterCache.get(storage);
+        if (cached) {
+            return cached;
         }
 
+        const filters = storage.filters || {};
+        const result: Record<string, IFilterPermission> = {};
+
+        for (const key of Object.keys(filters)) {
+            const filterToken = filters[key];
+            if (typeof filterToken !== 'function') {
+                result[key] = filterToken as IFilterPermission;
+                continue;
+            }
+
+            try {
+                result[key] = Ctr.ctr.get(filterToken);
+            } catch {
+                result[key] = await Ctr.ctr.create(filterToken);
+            }
+        }
+
+        this.resolvedFilterCache.set(storage, result);
         return result;
     }
 
     private async parseGrants(): Promise<GrantMap> {
-
         if (this.cache) {
-            const cache = await this.getFromCache();
-            if (cache) {
-                return cache;
+            const cached = (await this.cache.get()) as GrantMap | null;
+            if (cached) {
+                return cached;
             }
         }
 
-        const {grants, permissions} = await this.rbac.getRbac();
-        const result: GrantMap = {};
+        const storage = await this.rbac.getRbac();
+        const memoized = this.parsedGrantCache.get(storage);
+        if (memoized) {
+            if (this.cache) {
+                void this.cache.set(memoized);
+            }
+            return memoized;
+        }
+
+        const { grants, permissions } = storage;
         const normalizedGrants: GrantMap = grants || {};
         const normalizedPermissions: PermissionMap = permissions || {};
 
         const isPermissionValid = (value: string): boolean => {
-            if (value.includes('@')) {
-                const [permission, action] = value.split('@');
+            const atIndex = value.indexOf('@');
+            if (atIndex !== -1) {
+                const permission = value.slice(0, atIndex);
+                const action = value.slice(atIndex + 1);
                 const actions = normalizedPermissions[permission];
                 if (!actions) {
                     return false;
                 }
                 return actions.includes(action);
             }
-
             return Boolean(normalizedPermissions[value]);
         };
 
-        Object.keys(normalizedGrants).forEach((key) => {
-            const grant = normalizedGrants[key] || [];
-
-            const direct = grant.filter((value: string) => !value.startsWith('&'));
-            result[key] = [
-                ...new Set(direct.filter(isPermissionValid)),
-            ];
-        });
-
+        const result: GrantMap = {};
         const findExtendedGrants: GrantMap = {};
-        Object.keys(normalizedGrants).forEach((key) => {
+
+        for (const key of Object.keys(normalizedGrants)) {
             const grant = normalizedGrants[key] || [];
+            const direct: string[] = [];
+            const extended: string[] = [];
 
-            findExtendedGrants[key] = [
-                ...new Set(
-                    grant
-                        .filter((value: string) => value.startsWith('&'))
-                        .map((value) => value.slice(1))
-                        .filter((value) => value && value !== key && normalizedGrants[value]),
-                ),
-            ];
-        });
+            for (const value of grant) {
+                if (value.startsWith('&')) {
+                    const ref = value.slice(1);
+                    if (ref && ref !== key && normalizedGrants[ref]) {
+                        extended.push(ref);
+                    }
+                } else if (isPermissionValid(value)) {
+                    direct.push(value);
+                }
+            }
 
-        Object.keys(findExtendedGrants).forEach((key) => {
-            const grant = findExtendedGrants[key] || [];
+            result[key] = [...new Set(direct)];
+            findExtendedGrants[key] = [...new Set(extended)];
+        }
 
-            grant.forEach((value) => {
-                result[key] = [
-                    ...new Set([...(result[key] || []), ...(result[value] || [])]),
-                ];
-            });
-        });
+        for (const key of Object.keys(findExtendedGrants)) {
+            const refs = findExtendedGrants[key];
+            for (const ref of refs) {
+                const refGrants = result[ref];
+                if (refGrants && refGrants.length) {
+                    result[key] = [...new Set([...result[key], ...refGrants])];
+                }
+            }
+        }
 
-        Object.keys(result).forEach((key) => {
-            const grant = result[key] || [];
+        for (const key of Object.keys(result)) {
+            const grant = result[key];
             const expanded: string[] = [];
 
-            grant.forEach((value) => {
+            for (const value of grant) {
                 if (!value.includes('@')) {
                     const actions = normalizedPermissions[value];
                     if (actions) {
-                        expanded.push(...actions.map((action) => `${value}@${action}`));
+                        for (const action of actions) {
+                            expanded.push(`${value}@${action}`);
+                        }
                     }
                 }
-            });
+            }
 
-            result[key] = [...new Set([...grant, ...expanded])];
-        });
+            if (expanded.length) {
+                result[key] = [...new Set([...grant, ...expanded])];
+            }
+        }
+
+        this.parsedGrantCache.set(storage, result);
 
         if (this.cache) {
-            this.setIntoCache(result);
+            void this.cache.set(result);
         }
 
         return result;
-    }
-
-    private async getFromCache(): Promise<GrantMap | null> {
-        return (await this.cache.get()) as GrantMap | null;
-    }
-
-    private async setIntoCache(value: GrantMap): Promise<void> {
-        await this.cache.set(value);
     }
 }
